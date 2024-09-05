@@ -9,35 +9,26 @@ export default function Admin() {
 
   const handleSubmit = async (e) => {
     const getPresigned =  async () => {
-      console.log('PRESIGN');
-      // const url = 'http://localhost:3000/generate-presigned-url';
-      const url = '/api/generate-presigned-url';
+      const url = '/api/admin/products/upload-presigned';
       const response = await fetch(url);
       const out = await response.json();
       return out;
     }
 
     
-    const upload = async ({cloudname, apikey, signature, timestamp, asset_folder, tags, allowed_formats, use_filename}) => {
-      console.log('UPLOAD');
-      const url = "https://api.cloudinary.com/v1_1/" + cloudname + "/auto/upload";
+    const upload = async ({cloudname, options}) => {
+      const url = `https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`;
       const formData = new FormData();
       if (!file) {
         alert("Please select a file first!");
         return;
       }
       formData.append('file', file);
-      formData.append("api_key", apikey);
-      formData.append("timestamp", timestamp);
-      formData.append("signature", signature);
-      // formData.append("folder", folder);
-      formData.append("asset_folder", asset_folder);
+      
+      Object.entries(options).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
 
-      formData.append("tags", tags);
-      // formData.append("eager", "c_pad,h_300,w_400|c_crop,h_200,w_260");
-
-      formData.append('allowed_formats', allowed_formats);
-      formData.append('use_filename', use_filename);
       const out = await fetch(url, {
         method: "POST",
         body: formData
