@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useGetAdminProductsQuery, useAddProductPresignedUrlMutation, useAddProductUploadImageMutation, useAddProductSaveToDBMutation } from "../api/productsApiSlice";
+import { useGetProductsQuery, useAddProductPresignedUrlMutation, useAddProductUploadImageMutation, useAddProductSaveToDBMutation, useDeleteProductMutation } from "../api/productsApiSlice";
 
 export default function Admin() {
   const [file, setFile] = useState(null);
@@ -8,12 +8,13 @@ export default function Admin() {
     setFile(e.target.files[0]);
   };
 
-  const [getPresignedUrl, presignedUrlRequest] = useAddProductSaveToDBMutation();
-  const [uploadFile, uploadFileRequest] = useAddProductUploadImageMutation();
-  const [uploadDocument, uploadDocumentRequest] = useAddProductPresignedUrlMutation();
   // const {data, isError, isLoading, isSuccess, error, status} = request
+  const [getPresignedUrl, presignedUrlRequest] = useAddProductPresignedUrlMutation();
+  const [uploadImage, uploadImageRequest] = useAddProductUploadImageMutation();
+  const [uploadDocument, uploadDocumentRequest] = useAddProductSaveToDBMutation();
+  const [deleteDocument, deleteDocumentRequest] = useDeleteProductMutation();
 
-  const {data, refetch} = useGetAdminProductsQuery()
+  const {data, refetch} = useGetProductsQuery();
 
   const handleSubmit = async (e) => {
     if (!file) {
@@ -38,9 +39,7 @@ export default function Admin() {
       formData.append(key, value);
     });
 
-    const resultUploadFile = await uploadFile(formData);
-    console.log(resultUploadFile);
-
+    const resultUploadFile = await uploadImage(formData);
     if(resultUploadFile.error){
       console.error(resultUploadFile.error);
       return
@@ -67,17 +66,26 @@ export default function Admin() {
       </div>
       <div>
         <h2 className="text-[22px] font-[500]">Products</h2>
-        <div>
+        <div className="grid justify-center gap-6 grid-cols-[repeat(5,_minmax(0,_160px))]">
           {data && data.products.map(p => (
-            <>
-              <img src={p.image.url} className="max-w-80"/>
+            <div key={p.id}>
+              <img src={p.image.url} className=""/>
               <h3 className="font-[500] text-[1.3rem]">{p.name}</h3>
               {p.description && <p>{p.description}</p>}
               <p>{p.visibility}</p>
               <p>avgRating: {p.averageRating}</p>
               <p>numRatings: {p.numRatings}</p>
+              <button
+                className="px-3 py-1 bg-red-500 rounded-md text-white"
+                onClick={() => deleteDocument(p.id)}
+                // TODO, how to display success/error when successfully deleted?
+                // would probably end up using an errorSlice redux state, and on every
+                // mutation, if error it would set the error
+              >
+                Delete
+              </button>
               {/* <pre>{JSON.stringify(p, null, 2)}</pre> */}
-            </>
+            </div>
           ))}
         </div>
       </div>

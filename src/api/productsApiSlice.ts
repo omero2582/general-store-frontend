@@ -7,12 +7,18 @@ const cloudname = import.meta.env.VITE_CLOUDINARY_NAME;
 export const productsApiSlice = createApi({
   reducerPath: 'productsApi',
   baseQuery: fetchBaseQuery({baseUrl: '/api'}),
-  tagTypes: ['AdminProducts', 'Products'],
+  tagTypes: ['Products'],
   endpoints: (builder) => ({
 
     // public
     getProducts: builder.query({
-      query: () => '/products',
+      // query: () => '/products',
+      query: (token) => ({
+        url: '/products',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }),
       providesTags: (result) =>
         result
           ? [
@@ -20,23 +26,12 @@ export const productsApiSlice = createApi({
               { type: 'Products', id: 'LIST' },
             ]
           : [{ type: 'Products', id: 'LIST' }],
-    }),
-    // admin
-    getAdminProducts: builder.query({
-      query: () => '/admin/products',
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.products.map(({ id }) => ({ type: 'AdminProducts', id })),
-              { type: 'AdminProducts', id: 'LIST' },
-            ]
-          : [{ type: 'AdminProducts', id: 'LIST' }],
-      // keepUnusedDataFor <- defaults to 60s = time the data will remain in the cache, 
-      // after last component referencing it umounts. Also available per endpoint
+          // keepUnusedDataFor <- defaults to 60s = time the data will remain in the cache, 
+        // after last component referencing it umounts. Also available per endpoint
     }),
     addProductPresignedUrl: builder.mutation({
       query: (body) => ({
-        url: `/admin/products/upload-presigned`,
+        url: `/products/upload-presigned`,
         method: 'POST',
         body
       }),
@@ -50,15 +45,23 @@ export const productsApiSlice = createApi({
     }),
     addProductSaveToDB: builder.mutation({
       query: (body) => ({
-        url: `/admin/products`,
+        url: `/products`,
         method: 'POST',
         body
       }),
       invalidatesTags: [
-        { type: 'AdminProducts', id: 'LIST' },
         { type: 'Products', id: 'LIST' }
       ],
-    })
+    }),
+    deleteProduct: builder.mutation({
+      query: (id) => ({
+        url: `/products/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: [
+        { type: 'Products', id: 'LIST' }
+      ],
+    }),
     //
 
     // typescript template return
@@ -74,12 +77,11 @@ export const productsApiSlice = createApi({
 // same with the other apiSlice
 
 export const { 
-  // ChatGPT
-  useGetAdminProductsQuery,
   useGetProductsQuery,
   useAddProductSaveToDBMutation,
   useAddProductUploadImageMutation,
   useAddProductPresignedUrlMutation,
+  useDeleteProductMutation,
 } = productsApiSlice;
 
 export default productsApiSlice.reducer;
