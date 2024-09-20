@@ -93,7 +93,7 @@ export default function Admin() {
     <div>
       <div>
         <h1 className="text-[30px] font-[500] text-center">Admin Panel</h1>
-        <form noValidate onSubmit={handleSubmit(onSubmit)}>
+        <form noValidate onSubmit={handleSubmit(onSubmit)} className="grid justify-center">
           <h2 className="text-[18px] font-[500]">New Product</h2>
           <div className="grid justify-start justify-items-start gap-y-2">
             {/* <input id='name' placeholder="name" {...register("name")}/> */}
@@ -104,15 +104,15 @@ export default function Admin() {
             {/* <Input errors={errors} id='visibility' label="visibility" inputProps={{...register("visibility")}}/>
              */}
             <div className="flex gap-x-3">
-              <label htmlFor="visibility">visibility:</label>
+              <label htmlFor="visibility">Visibility:</label>
               <select className="border-gray-400 border rounded-md" id="visibility" defaultValue="public" {...register("visibility")}>
-                <option value="public">public</option>
-                <option value="private">private</option>
+                <option value="public">Public</option>
+                <option value="private">Private</option>
               </select>
             </div>
 
             <input type="file" accept=".jpg, .png, .webp, .jfif" onChange={handleFileChange} />
-            <button disabled={isSubmitting} type="submit" className="bg-lime-500 px-2 py-1 rounded">Submit</button>
+            <button disabled={isSubmitting} type="submit" className="text-white text-[1rem] font-[500] bg-blue-600 px-4 py-[6px] rounded">Submit</button>
           </div>
         </form>
       </div>

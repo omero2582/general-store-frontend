@@ -1,4 +1,6 @@
+import { AspectRatio } from "@radix-ui/react-aspect-ratio";
 import { useDeleteProductMutation } from "../../api/productsApiSlice";
+import StarRatings from 'react-star-ratings';
 
 export default function Products({data}) {
   const [deleteDocument, resDeleteDocument] = useDeleteProductMutation();
@@ -20,26 +22,48 @@ export default function Products({data}) {
 
   return (
     <div>
-        <h2 className="text-[22px] font-[500]">Products</h2>
-        <div className="grid justify-center gap-6 grid-cols-[repeat(5,_minmax(0,_160px))]">
+        <h2 className="text-[22px] font-[500]">My Products</h2>
+        <div className=" grid justify-center mx-auto gap-6 max-w-[1920px] grid-cols-[repeat(auto-fit,_minmax(0,_250px))]">
           {data && data.products.map(p => (
             <div key={p.id}>
-              <img src={p.image.url} className=""/>
-              <h3 className="font-[500] text-[1.3rem]">{p.name}</h3>
-              {p.description && <p>{p.description}</p>}
+              <AspectRatio ratio={1} className="bg-stone-100 gird content-center">
+                <img src={p.image.url} className=""/>
+              </AspectRatio >
+              <h3 className="pt-2 font-[500] text-[1.05rem]">Razer Agopia Mini</h3>
+              {/* <p>{p.averageRating} ({p.numRatings})</p> */}
+              <p className="mt-[-4px]">
+              <StarRatings
+                  rating={p.averageRating}
+                  numberOfStars={5}
+                  name='rating'
+                  starDimension='18px'
+                  starSpacing='0px'
+                  starRatedColor='#E78A2E'
+                  // starEmptyColor='#acb9d2'
+                  starHoverColor='blue'
+                  changeRating={(newRating: number) => console.log('CHANGE', newRating)}
+              />
+                ({p.numRatings})</p>
+              {/* {p.description && <p className="text-[0.95rem]">{p.description}</p>} */}
+              <p className="font-[500] text-[1.20rem] pt-2">{getPrice(p.price)}</p>
               <p>{p.visibility}</p>
-              <p>avgRating: {p.averageRating}</p>
-              <p>numRatings: {p.numRatings}</p>
-              <p>price: {getPrice(p.price)}</p>
-              <button
-                className="px-3 py-1 bg-red-500 rounded-md text-white"
-                onClick={() => deleteDocument(p.id)}
-                // TODO, how to display success/error when successfully deleted?
-                // would probably end up using an errorSlice redux state, and on every
-                // mutation, if error it would set the error
-              >
-                Delete
-              </button>
+              <div className="space-x-1">
+                <button
+                  className="px-3 py-1 bg-red-500 rounded-md text-white"
+                  onClick={() => deleteDocument(p.id)}
+                  // TODO, how to display success/error when successfully deleted?
+                  // would probably end up using an errorSlice redux state, and on every
+                  // mutation, if error it would set the error
+                >
+                  Delete
+                </button>
+                <button
+                  className="px-3 py-1 bg-neutral-800 rounded-md text-white"
+                  onClick={() => deleteDocument(p.id)}
+                >
+                  Edit
+                </button>
+              </div>
               {/* <pre>{JSON.stringify(p, null, 2)}</pre> */}
             </div>
           ))}
