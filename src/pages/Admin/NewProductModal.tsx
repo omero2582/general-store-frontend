@@ -6,7 +6,7 @@ import  {useForm, type FieldValues, FieldErrors} from 'react-hook-form';
 import Input from "./Input";
 import { z } from "zod";
 
-export function NewProductModal({refetch}) {
+export function NewProductModal() {
   const [file, setFile] = useState(null);
 
   const handleFileChange = (e) => {
@@ -81,7 +81,7 @@ export function NewProductModal({refetch}) {
     
     reset(); // clear inputs
     setFile(null);  // clear file input
-    refetch(); // refetch all products
+    // refetch(); // refetch all products
   }
 
   // console.log(errors)

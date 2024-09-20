@@ -4,11 +4,6 @@ import { NewProductModal } from "./NewProductModal";
 import { useGetProductsQuery } from "@/api/productsApiSlice";
 
 export default function Admin() {
-  const {data, refetch} = useGetProductsQuery();
-  // TODO move this into Products, and manage/fix RTK Query tags so that
-  // it automatically invalidates this query when I submit new product
-  // (I think this all might already be ready/done)
-  
   return (
     <div>
       <h1 className="text-[30px] font-[500] text-center">Admin Panel</h1>
@@ -19,11 +14,11 @@ export default function Admin() {
             New +
           </DialogTrigger>
           <DialogContent>
-            <NewProductModal refetch={refetch}/>
+            <NewProductModal/>
           </DialogContent>
         </Dialog>
       </div>
-      <Products data={data}/>
+      <Products showAdmin={true}/>
     </div>
   )
 }
