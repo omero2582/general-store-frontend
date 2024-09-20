@@ -2,7 +2,7 @@
   "compilerOptions": {
     // new
     "paths": {
-      "@shared/*": ["../shared/*"]
+      "@shared/*": ["../general-store-shared/*"]
     },
     //
     "target": "ES2020",
