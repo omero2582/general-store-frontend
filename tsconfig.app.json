@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
     // new
+    "baseUrl": ".",
     "paths": {
-      "@shared/*": ["../general-store-shared/*"]
+      "@shared/*": ["../general-store-shared/*"],
+      "@/*": ["./src/*"]
     },
     //
     "target": "ES2020",
