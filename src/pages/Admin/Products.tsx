@@ -33,7 +33,7 @@ export default function Products({showAdmin = false}) {
                 <img src={p.image.url} className="max-h-[250px]"/>
               </AspectRatio >
             </div>
-            <h3 className="pt-2 font-[500] text-[1.05rem]">Razer Agopia Mini</h3>
+            <h3 className="pt-2 font-[500] text-[1.05rem]">{p.name}</h3>
             {/* <p>{p.averageRating} ({p.numRatings})</p> */}
             <div className="mt-[-4px]">
               <StarRatings
