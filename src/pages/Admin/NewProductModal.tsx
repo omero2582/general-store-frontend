@@ -8,7 +8,7 @@ import { z } from "zod";
 import {useDropzone} from 'react-dropzone'
 import { AspectRatio } from "@/components/AspectRatio";
 
-export function NewProductModal() {
+export function NewProductModal({formHook}) {
   
   const [files, setFiles] = useState<File[]>([]);
   const [preview, setPreview] = useState<string | ArrayBuffer | null>(null);
@@ -42,20 +42,13 @@ export function NewProductModal() {
     reset,
     setError,
     getValues
-  } = useForm<TProductSchemaNoImage>({
-    // resolver: zodResolver(productSchemaNoImage)
-    resolver: zodResolver(z.preprocess((data) => {
-      // removes empty input fields, which default to '' (emppty string) on html
-      const out = Object.fromEntries(
-        Object.entries(data).filter(([_, value]) => value !== "" && value !== undefined)
-      );
-      console.log('Values', out);
-      return out;
-    }, productSchemaNoImage))
-  });
+  } = formHook;
 
   //
-
+  // TODO, moved useForm() call outside of this component, and now it comes as props,
+  // Otherwise the state of the form would be cleared on as soon as modal closes.
+  // Have to think about this thought bc I am not sure of the exact behavior that I want.
+  // Also, we would have to also move the file and preview state outside of this container
 
 
   // const {data, isError, isLoading, isSuccess, error, status} = request
@@ -112,40 +105,45 @@ export function NewProductModal() {
 
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)}
-      className="grid justify-center content-start"
+      className="grid justify-center"
     >
       <h2 className="text-[18px] font-[500]">New Product</h2>
-      <div className="grid justify-start justify-items-start gap-y-2">
-        <Input errors={errors} id='name' label="Name" inputProps={{...register("name")}}/>
-        <textarea className="p-[6px] resize-none border-gray-400 border rounded-md" cols={50} rows={4} spellCheck={false} placeholder="Description" {...register("description")}/>
-        <Input errors={errors} type="number" id='price' label="Price" inputSx="max-w-[100px]" inputProps={{...register("price"), step: 0.01}}/>
-        <div className="flex gap-x-3">
-          <label htmlFor="visibility">Visibility:</label>
-          <select className="border-gray-400 border rounded-md" id="visibility" defaultValue="public" {...register("visibility")}>
-            <option value="public">Public</option>
-            <option value="private">Private</option>
-          </select>
+      <div className="grid grid-flow-col gap-x-5">
+        <div className="flex flex-col items-start gap-y-2">
+          <Input errors={errors} id='name' label="Name" inputProps={{...register("name")}}/>
+          <textarea className="p-[6px] resize-none border-gray-400 border rounded-md" cols={50} rows={4} spellCheck={false} placeholder="Description" {...register("description")}/>
+          <Input errors={errors} type="number" id='price' label="Price" inputSx="max-w-[100px]" inputProps={{...register("price"), step: 0.01}}/>
+          <div className="flex gap-x-3">
+            <label htmlFor="visibility">Visibility:</label>
+            <select className="border-gray-400 border rounded-md" id="visibility" defaultValue="public" {...register("visibility")}>
+              <option value="public">Public</option>
+              <option value="private">Private</option>
+            </select>
+          </div>
+          <button disabled={isSubmitting} type="submit" className="mt-auto text-white font-[500] bg-blue-600 px-4 py-[6px] rounded ">
+            Submit
+          </button>
+        </div>
+        <div {...getRootProps()} className="grid cursor-pointer"  >
+          <div className={`relative bg-stone-100 grid w-[250px] h-[250px] ${isDragActive? 'border-[3px] border-blue-700 border-dashed' : ''}`}>
+            <div className="absolute left-[42%] top-[25%] text-stone-300 font-bold text-[5rem]">+</div>
+            {preview &&
+            <AspectRatio ratio={1} className="flex place-content-center">
+              <img src={preview as string} alt="Upload preview" className="object-contain"/>
+            </AspectRatio >
+            }
+          </div>
+          {/* <input type="file" accept=".jpg, .png, .webp, .jfif" onChange={handleFileChange} /> */}
+          <div {...getRootProps()} className="">
+            <input {...getInputProps()}/>
+            <div className={`h-[50px] rounded bg-[rgb(255,_51,_51)] grid place-content-center`}>
+              <p className="text-white ">Choose File</p>
+            </div>
+          </div>
         </div>
       </div>
-      {/* <input type="file" accept=".jpg, .png, .webp, .jfif" onChange={handleFileChange} /> */}
-      <div {...getRootProps()} className="justify-self-stretch cursor-pointer">
-        <input {...getInputProps()}/>
-        <div className={`h-[50px] rounded bg-[rgb(255,_51,_51)] grid place-content-center`}>
-          <p className="text-white ">{isDragActive ? '+' : 'Choose File'}</p>
-        </div>
-      </div>
-      {preview &&
-      <div className="justify-self-center grid grid-cols-[repeat(auto-fit,_minmax(0,_250px))]">
-        <div className="bg-stone-100 grid">
-          <AspectRatio ratio={1} className="place-self-center">
-            <img src={preview as string} alt="Upload preview" className="max-h-[250px] "/>
-          </AspectRatio >
-        </div>
-      </div>
-      }
-      <button disabled={isSubmitting} type="submit" className="text-white font-[500] bg-blue-600 px-4 py-[6px] rounded justify-self-end">
-        Submit
-      </button>
+      
+      
     </form>
   )
 }

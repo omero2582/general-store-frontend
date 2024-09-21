@@ -9,6 +9,7 @@ export function Navbar() {
       </Link>
       <ul className="grid grid-flow-col text-[24px]">
         {[
+          ['Admin', '/admin'],
           ['Home', '/'],
           ['Shop', '/shop'],
         ].map(([title, url]) => (
