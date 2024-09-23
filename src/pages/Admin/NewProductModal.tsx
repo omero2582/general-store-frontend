@@ -88,7 +88,7 @@ export function NewProductModal({formHook}) {
 
     // 3- save document to DB
     const {public_id} = resultUploadFile.data;
-    const resultUploadDocument = await addProductSaveToDB({...body, imageId: public_id});
+    const resultUploadDocument = await addProductSaveToDB({...body, images: [{order: 1, imageId: public_id}]});
     if(resultUploadDocument.error){
       console.error(resultUploadDocument.error);
       return
@@ -111,7 +111,11 @@ export function NewProductModal({formHook}) {
       <div className="grid grid-flow-col gap-x-5">
         <div className="flex flex-col items-start gap-y-2">
           <Input errors={errors} id='name' label="Name" inputProps={{...register("name")}}/>
-          <textarea className="p-[6px] resize-none border-gray-400 border rounded-md" cols={50} rows={4} spellCheck={false} placeholder="Description" {...register("description")}/>
+          <div className="grid">  {/*Description TextArea*/}
+            <label htmlFor={'description'} className="sr-only">{'Description'}:</label>
+            <textarea className="p-[6px] resize-none border-gray-400 border rounded-md" cols={50} rows={4} spellCheck={false} placeholder="Description" {...register("description")}/>
+            {errors && errors['description'] && <p className="text-red-500">{`${errors['description'].message}`}</p>}
+          </div>
           <Input errors={errors} type="number" id='price' label="Price" inputSx="max-w-[100px]" inputProps={{...register("price"), step: 0.01}}/>
           <div className="flex gap-x-3">
             <label htmlFor="visibility">Visibility:</label>

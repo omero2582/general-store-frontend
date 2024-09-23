@@ -25,15 +25,15 @@ export default function Products({showAdmin = false}) {
 
   return (
 
-      <div className=" grid justify-center mx-auto gap-6 max-w-[1920px] grid-cols-[repeat(auto-fit,_minmax(0,_250px))]">
+      <div className=" grid justify-center mx-auto gap-4 max-w-[1920px] grid-cols-[repeat(auto-fit,_minmax(0,_250px))]">
         {data && data.products.map(p => (
           <div key={p.id}>
             <div className="bg-stone-100 grid">
               <AspectRatio ratio={1} className="place-self-center">
-                <img src={p.image.url} className="max-h-[250px]"/>
+                <img src={p.images[0].url} className="max-h-[250px]"/>
               </AspectRatio >
             </div>
-            <h3 className="pt-2 font-[500] text-[1.05rem]">{p.name}</h3>
+            <h3 className="pt-2 font-[400] text-[0.95rem] line-clamp-4">{p.name}</h3>
             {/* <p>{p.averageRating} ({p.numRatings})</p> */}
             <div className="mt-[-4px]">
               <StarRatings
@@ -47,9 +47,9 @@ export default function Products({showAdmin = false}) {
                   starHoverColor='blue'
                   changeRating={(newRating: number) => console.log('CHANGE', newRating)}
               />
-              <span>({p.numRatings})</span>
+              <span>({new Intl.NumberFormat('en').format(p.numRatings)})</span>
             </div>
-            {/* {p.description && <p className="text-[0.95rem]">{p.description}</p>} */}
+            {/* {p.description && <p className="line-clamp-4 text-[0.95rem]">{p.description}</p>} */}
             <p className="font-[500] text-[1.20rem] pt-2">{getPrice(p.price)}</p>
             {
               showAdmin && 
