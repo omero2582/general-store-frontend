@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import Products from "./Products";
 import { NewProductModal } from "./NewProductModal";
-import { useGetProductsQuery } from "@/store/api/productsApiSlice";
+import { useGetProductsAdminQuery, useGetProductsQuery } from "@/store/api/productsApiSlice";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { productSchemaNoImage, TProductSchemaNoImage } from "@shared/schemas/schemas";
@@ -11,7 +11,7 @@ import { useSignInGoogleQuery } from "@/store/api/authSlice";
 import { useEffect } from "react";
 
 export default function Admin() {
-  const user = useAppSelector((state) => state.user.user);
+  // const user = useAppSelector((state) => state.user.user);
 
   // const response = useSignInGoogleQuery(null, {skip: user}
   // useEffect(() => {
@@ -35,10 +35,19 @@ export default function Admin() {
       return out;
     }, productSchemaNoImage))
   });
+  const productsAdminQuery = useGetProductsAdminQuery();
+
+  const {user, ...rest} = productsAdminQuery?.error?.data || {}
+
   return (
     <div>
       <h1 className="text-[30px] font-[500] text-center">Admin Panel</h1>
-      <div className="grid grid-flow-col justify-start gap-4 items-end">
+      {productsAdminQuery.error &&
+      <pre>{JSON.stringify({...rest}, null, 2)}</pre>
+      } 
+      {!productsAdminQuery.error && productsAdminQuery.data &&
+      <>
+        <div className="grid grid-flow-col justify-start gap-4 items-end">
         <h2 className="text-[22px] font-[500]">My Products</h2>
         <Dialog>
           <DialogTrigger className="text-white text-[1rem] font-[500] bg-blue-600 px-4 py-[6px] rounded">
@@ -48,8 +57,11 @@ export default function Admin() {
             <NewProductModal formHook={formHook}/>
           </DialogContent>
         </Dialog>
-      </div>
-      <Products showAdmin={true}/>
+        </div>
+        <Products showAdmin={true} query={productsAdminQuery}/>  
+      </>
+    }
+      
     </div>
   )
 }

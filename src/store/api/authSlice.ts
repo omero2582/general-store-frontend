@@ -1,18 +1,26 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import {productsApiSlice} from "./productsApiSlice";
 
 export const authApiSlice = createApi({
   reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({baseUrl: '/api/auth'}),
   endpoints: (builder) => ({
-    signInGoogle: builder.query({
-      // TODO change this to post, also not usre if i can use this anymore, get cors errors form gogole redirect
-      query: () => '/google',
-    }),
     logoutGoogle: builder.mutation({
       query: () => ({
         url: '/logout',
         method: 'POST',
       }),
+      onQueryStarted: async (arg, { dispatch, queryFulfilled }) => {
+        try {
+          // Wait for the query to finish
+          await queryFulfilled;
+
+          // Invalidate the product cache after successful user role change
+          dispatch(productsApiSlice.util.invalidateTags(['Users']));
+        } catch (err) {
+          // Handle error
+        }
+      },
     }),
     me: builder.query({
       query: () => '/me'
@@ -26,7 +34,6 @@ export const authApiSlice = createApi({
 
 export const { 
   useLogoutGoogleMutation,
-  useSignInGoogleQuery,
   useMeQuery,
 } = authApiSlice;
 

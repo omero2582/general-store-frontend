@@ -1,5 +1,6 @@
 import { Spinner } from '@/components/Spinner';
 import { useToast } from '@/hooks/use-toast';
+import { useMeQuery } from '@/store/api/authSlice';
 import { useChangeUserLevelMutation } from '@/store/api/userSlice';
 import { useAppSelector } from '@/store/store';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -40,6 +41,15 @@ export default function UserLevelSwitch() {
       setValue('userLevel', user.userLevel)
     }
   }, [user])
+  // TODO I think now that we know we can get the value of user from meQuery,
+  // not sure if I should remove this effect and just listen to the querry result?
+  // prob not because there were 2 reasons we had this:
+  // 1 - wait for initial fetch
+  // 2 - change when user changes
+  // I belive this second reason would NOT be solved by swithcing our strategy to ocmment above
+  // Not sure though, have to think about this, i havent thought muhc abt this
+  const {isLoading, data} = useMeQuery();
+
 
 
   const [changeUserLevel, resChangeUserLevel] = useChangeUserLevelMutation();
@@ -94,11 +104,24 @@ export default function UserLevelSwitch() {
         ))}
         </div>
         {/**px-5 py-2 */}
-        <button disabled={resChangeUserLevel.isLoading} className={` disabled:bg-emerald-800 bg-emerald-700 hover:bg-emerald-600 w-[106px] h-[46px] text-white rounded text-[20px] tracking-wide`}>
-          {resChangeUserLevel.isLoading?
-           <Spinner className='text-neutral-100'/>
-           :'Submit'}
-        </button>
+        {!user && !isLoading &&
+          // <button onClick={() => signin} type='button' className={` bg-emerald-700 hover:bg-emerald-600 w-[106px] h-[46px] text-white rounded text-[20px] tracking-wide`}>
+          //   Sign In
+          // </button>
+          <a 
+            href='/api/auth/google'
+            className='bg-slate-900 text-neutral-100 py-[3px] px-4 rounded border-[2px] border-slate-400 font-[500] tracking-wide text-[18px] hover:bg-slate-800 h-full grid items-center'
+          >
+            Sign In
+          </a>
+        }
+        {user && 
+          <button disabled={resChangeUserLevel.isLoading} className={` disabled:bg-emerald-800 bg-emerald-700 hover:bg-emerald-600 w-[106px] h-[46px] text-white rounded text-[20px] tracking-wide`}>
+            {resChangeUserLevel.isLoading?
+            <Spinner className='text-neutral-100'/>
+            :'Submit'}
+          </button>
+        }
       </form>
     </div>
   )

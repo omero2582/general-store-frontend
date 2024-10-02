@@ -1,10 +1,7 @@
 import { useCallback, useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useGetProductsQuery, useAddProductPresignedUrlMutation, useAddProductUploadImageMutation, useAddProductSaveToDBMutation, useDeleteProductMutation } from "../../store/api/productsApiSlice";
-import { productSchema, productSchemaNoImage, productSchemaOptional, TProductSchema, TProductSchemaNoImage } from '@shared/schemas/schemas'
-import  {useForm, type FieldValues, FieldErrors} from 'react-hook-form';
+import {  useAddProductPresignedUrlMutation, useAddProductUploadImageMutation, useAddProductSaveToDBMutation, useDeleteProductMutation } from "../../store/api/productsApiSlice";
+import { TProductSchemaNoImage } from '@shared/schemas/schemas'
 import Input from "./Input";
-import { z } from "zod";
 import {useDropzone} from 'react-dropzone'
 import { AspectRatio } from "@/components/AspectRatio";
 

@@ -1,12 +1,12 @@
 import { AspectRatio } from "@radix-ui/react-aspect-ratio";
-import { useDeleteProductMutation, useGetProductsQuery } from "../../store/api/productsApiSlice";
+import { useDeleteProductMutation, useGetProductsAdminQuery, useGetProductsQuery } from "../../store/api/productsApiSlice";
 import StarRatings from 'react-star-ratings';
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { NewProductModal } from "./NewProductModal";
 
-export default function Products({showAdmin = false}) {
+export default function Products({showAdmin = false, query}) {
   const [deleteDocument, resDeleteDocument] = useDeleteProductMutation();
-  const {data, refetch} = useGetProductsQuery();
+  const {data, refetch} = query;
 
   const getPrice = (price) => {
     if(price === 0){

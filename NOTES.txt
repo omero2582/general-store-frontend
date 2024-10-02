@@ -1,0 +1,24 @@
+RTK Query-
+-cache time starts counting down, only after a query loses all of its
+subscribers. Once it finishes counting, it clears it from the cache
+-you can use multiple query hook calls, and it will not refetch a new
+call and will just use the previous one. This property is called 'keepUnusedDataFor'
+
+with above in mind, we can call 'useMeQuery()' at the outermost component
+when the app loads, and then check this same status by including the same
+hook call in innner components
+
+Details for this are in producstApiSlice:
+keepUnusedDataFor <- defaults to 60s = time the data will remain in the cache, 
+// after last component referencing it umounts. Also available per endpoint
+
+
+// RTK QUERY cahce
+https://redux-toolkit.js.org/rtk-query/usage/automated-refetching
+
+TO SOLVE:
+edit route
+add user who added product, to the product info so we can know their role
+(is this an owner item or admin item)
+google image rate limits
+support multiple images frontend (backend support this)

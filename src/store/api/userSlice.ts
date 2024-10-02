@@ -1,8 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import {productsApiSlice} from "./productsApiSlice.ts";
 
 export const userApiSlice = createApi({
   reducerPath: 'userApi',
   baseQuery: fetchBaseQuery({baseUrl: '/api/users'}),
+  tagTypes: ['Products', 'LIST'],
   endpoints: (builder) => ({
     changeUserLevel: builder.mutation({
       query: (body) => ({
@@ -10,6 +12,17 @@ export const userApiSlice = createApi({
         method: 'POST',
         body
       }),
+      onQueryStarted: async (arg, { dispatch, queryFulfilled }) => {
+        try {
+          // Wait for the query to finish
+          await queryFulfilled;
+
+          // Invalidate the product cache after successful user role change
+          dispatch(productsApiSlice.util.invalidateTags(['Users']));
+        } catch (err) {
+          // Handle error
+        }
+      },
     }),
   })
 })

@@ -27,15 +27,12 @@ export const productsApiSlice = createApi({
   reducerPath: 'productsApi',
   baseQuery: fetchBaseQuery({baseUrl: '/api'}),
   // baseQuery: customBaseQuery('/api'),
-  tagTypes: ['Products'],
+  tagTypes: ['Products', 'LIST', 'Users'],
   endpoints: (builder) => ({
 
     // public
     getProducts: builder.query({
-      // query: () => '/products',
-      query: () => ({
-        url: '/products',
-      }),
+      query: () => '/products',
       async onCacheEntryAdded(arg, api) {
         await api.cacheDataLoaded;  // so that cacheEntry will be resolved and have a.data property
         console.log('getCacheEntry',  api.getCacheEntry())
@@ -49,6 +46,16 @@ export const productsApiSlice = createApi({
           : [{ type: 'Products', id: 'LIST' }],
           // keepUnusedDataFor <- defaults to 60s = time the data will remain in the cache, 
         // after last component referencing it umounts. Also available per endpoint
+    }),
+    getProductsAdmin: builder.query({
+      query: () => '/products/admin',
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.products.map(({ id }) => ({ type: 'Products', id })),
+              { type: 'Products', id: 'LIST' }, 'Users'
+            ]
+          : [{ type: 'Products', id: 'LIST' }, 'Users'],
     }),
     addProductPresignedUrl: builder.mutation({
       query: (body) => ({
@@ -99,6 +106,7 @@ export const productsApiSlice = createApi({
 
 export const { 
   useGetProductsQuery,
+  useGetProductsAdminQuery,
   useAddProductSaveToDBMutation,
   useAddProductUploadImageMutation,
   useAddProductPresignedUrlMutation,

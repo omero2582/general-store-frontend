@@ -8,10 +8,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useLogoutGoogleMutation } from '@/store/api/authSlice';
+import { useLogoutGoogleMutation, useMeQuery } from '@/store/api/authSlice';
 
 export function Navbar() {
   const user = useAppSelector((state) => state.user.user);
+  const {isLoading, data} = useMeQuery();
   const [logout, resLogout] = useLogoutGoogleMutation();
   return (
     <nav className="grid grid-flow-col justify-between px-8 bg-slate-900 text-neutral-100">
@@ -45,8 +46,10 @@ export function Navbar() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu> 
+          : isLoading?
+          <div className='bg-stone-300 h-[45px] w-[45px] rounded-full'></div>
           :<a 
-            href='http://localhost:3000/api/auth/google'
+            href='/api/auth/google'
             className='py-[3px] px-4 rounded border-[2px] border-slate-400 font-[500] tracking-wide text-[18px] hover:bg-slate-800 h-full grid items-center'
           >
             Sign In
