@@ -1,13 +1,29 @@
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import Products from "./Products";
 import { NewProductModal } from "./NewProductModal";
-import { useGetProductsQuery } from "@/api/productsApiSlice";
+import { useGetProductsQuery } from "@/store/api/productsApiSlice";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { productSchemaNoImage, TProductSchemaNoImage } from "@shared/schemas/schemas";
 import { z } from "zod";
+import { useAppSelector } from "@/store/store";
+import { useSignInGoogleQuery } from "@/store/api/authSlice";
+import { useEffect } from "react";
 
 export default function Admin() {
+  const user = useAppSelector((state) => state.user.user);
+
+  // const response = useSignInGoogleQuery(null, {skip: user}
+  // useEffect(() => {
+  //   const handleGoogleSignIn = () => {
+  //     window.location.href = 'http://localhost:3000/api/auth/google';
+  //   };
+  //   if(!user){
+  //     handleGoogleSignIn();
+  //   }
+  // }, [user])
+  // TODO above
+
   const formHook = useForm<TProductSchemaNoImage>({
     // resolver: zodResolver(productSchemaNoImage)
     resolver: zodResolver(z.preprocess((data) => {

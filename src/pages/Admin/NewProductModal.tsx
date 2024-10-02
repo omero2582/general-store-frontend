@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useGetProductsQuery, useAddProductPresignedUrlMutation, useAddProductUploadImageMutation, useAddProductSaveToDBMutation, useDeleteProductMutation } from "../../api/productsApiSlice";
+import { useGetProductsQuery, useAddProductPresignedUrlMutation, useAddProductUploadImageMutation, useAddProductSaveToDBMutation, useDeleteProductMutation } from "../../store/api/productsApiSlice";
 import { productSchema, productSchemaNoImage, productSchemaOptional, TProductSchema, TProductSchemaNoImage } from '@shared/schemas/schemas'
 import  {useForm, type FieldValues, FieldErrors} from 'react-hook-form';
 import Input from "./Input";

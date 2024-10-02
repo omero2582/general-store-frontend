@@ -1,5 +1,5 @@
 import { AspectRatio } from "@radix-ui/react-aspect-ratio";
-import { useDeleteProductMutation, useGetProductsQuery } from "../../api/productsApiSlice";
+import { useDeleteProductMutation, useGetProductsQuery } from "../../store/api/productsApiSlice";
 import StarRatings from 'react-star-ratings';
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { NewProductModal } from "./NewProductModal";
@@ -17,12 +17,7 @@ export default function Products({showAdmin = false}) {
       return new Intl.NumberFormat('en', { style: 'currency', currency: 'USD' }).format(price)
     }
   }
-
-  if(data) {
-    const sec = data.products.find(p => p.name === 'SECCC');
-    console.log('PPPP', sec)
-  }
-
+  
   return (
 
       <div className=" grid justify-center mx-auto gap-4 max-w-[1920px] grid-cols-[repeat(auto-fit,_minmax(0,_250px))]">
