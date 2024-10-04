@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import Products from "./Products";
+import Products from "../Products";
 import { NewProductModal } from "./NewProductModal";
 import { useGetProductsAdminQuery, useGetProductsQuery } from "@/store/api/productsApiSlice";
 import { useForm } from "react-hook-form";

@@ -33,6 +33,10 @@ export const productsApiSlice = createApi({
     // public
     getProducts: builder.query({
       query: () => '/products',
+      async onQueryStarted(arg, api){
+        // api.queryFulfilled promise
+        //https://redux.js.org/tutorials/essentials/part-8-rtk-query-advanced#the-onquerystarted-lifecycle
+      },
       async onCacheEntryAdded(arg, api) {
         await api.cacheDataLoaded;  // so that cacheEntry will be resolved and have a.data property
         console.log('getCacheEntry',  api.getCacheEntry())
@@ -114,3 +118,5 @@ export const {
 } = productsApiSlice;
 
 export default productsApiSlice.reducer;
+
+// For TypeScript usage, the builder.query() and builder.mutation() endpoint definition functions accept two generic arguments: <ReturnType, ArgumentType>. For example, an endpoint to fetch a Pokemon by name might look like getPokemonByName: builder.query<Pokemon, string>(). If a given endpoint takes no arguments, use the void type, like getAllPokemon: builder.query<Pokemon[], void>().

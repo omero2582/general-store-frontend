@@ -1,7 +1,10 @@
-import { useDispatch } from "react-redux";
 import { setUser } from "./slices/userSlice";
+import { Middleware, MiddlewareAPI } from "@reduxjs/toolkit";
+import { isRejectedWithValue, isFulfilled, isPending } from '@reduxjs/toolkit'
+import { toast } from '@/hooks/use-toast';
 
-export const fetchMiddleware = (storeAPI) => (next) => (action) => {
+export const fetchMiddleware: Middleware = 
+  (storeAPI: MiddlewareAPI) => (next) => (action) => {
   // // Check if the action has opted out of middleware using a custom flag
   // if (action.meta?.skipMiddleware) {
   //   console.log('SKIP');
@@ -13,18 +16,23 @@ export const fetchMiddleware = (storeAPI) => (next) => (action) => {
     return next(action); // Skip any processing in middleware
   }
 
-  console.log("ACTIONN", action)
+  // console.log("ACTIONN", action)
 
   const {dispatch} = storeAPI;
   // Normal processing for other actions
-  if (action.type.endsWith('/pending')) {
+  if (isPending(action)) {
     console.log('Fetch started');
-  } else if (action.type.endsWith('/fulfilled')) {
+  } else if (isFulfilled(action)) {
     console.log('Fetch successful');
     dispatch(setUser(action.payload.user))
-  } else if (action.type.endsWith('/rejected')) {
-    console.log('Fetch failed');
+  } else if (isRejectedWithValue(action)) {
+    console.log('Fetch failed', action);
     dispatch(setUser(action.payload.data?.user))
+    toast({
+      title: action.payload.data?.name || 'Error',
+      description: action.payload.data?.message,
+      variant: "destructive",
+    });
   }
 
   return next(action);

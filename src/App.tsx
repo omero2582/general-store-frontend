@@ -2,14 +2,15 @@
 // import viteLogo from '/vite.svg'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
-import Shop from './pages/Shop'
+import Shop from './pages/Shop/Shop'
 import Admin from './pages/Admin/Admin'
 import { Navbar } from './layout/Navbar'
 import { useAppSelector } from './store/store'
 import { useEffect } from 'react'
 import { useMeQuery } from './store/api/authSlice'
-import UserLevelSwitch from './pages/Admin/UserLevelSwitch'
+import UserLevelSwitch from './pages/UserLevelSwitch'
 import { Toaster } from './components/ui/toaster'
+import Profile from './pages/Profile/Profile'
 // import { productSchema } from '@shared/schemas/schemas'
 // console.log(productSchema.shape)
 
@@ -29,6 +30,7 @@ function App() {
         <Route path="/shop" element={<Shop />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/userLevel" element={<UserLevelSwitch />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
       <div className='grid overflow-hidden'>
         <pre>{JSON.stringify({...rest}, null, 2)}</pre>

@@ -61,44 +61,37 @@ export function NewProductModal({formHook}) {
       return;
     }
 
-    // 1- presignedUrl
-    const resultPresignedUrl = await addProductPresignedUrl(body);
-    if(resultPresignedUrl.error){
-      console.error(resultPresignedUrl.error);
-      return
-    }
+    // Note, in RTK Query calls, using uwrap() makes them throw err on failure.
+    // Otherwise they dont throw and instead return a .data and .error properties
+    try {
+      // 1- presignedUrl
+      const resultPresignedUrl = await addProductPresignedUrl(body).unwrap();
 
-    // 2- Add file to 2nd request to upload
-    const {cloudname, options} = resultPresignedUrl.data;
-    const formData = new FormData();
-    formData.append('file', files[0]);
-    // Add to this req, the same options we used in the backend to presign the url
-    Object.entries(options).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
+      // 2- Add file to 2nd request direct image upload
+      const {cloudname, options} = resultPresignedUrl;
+      const formData = new FormData();
+      formData.append('file', files[0]);
+      // Add to this req, the same options we used in the backend to presign the url
+      Object.entries(options).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
 
-    const resultUploadFile = await addProductUploadImage(formData);
-    if(resultUploadFile.error){
-      console.error(resultUploadFile.error);
-      return
+      const resultUploadFile = await addProductUploadImage(formData).unwrap();
+      
+      // 3- save document to DB including the files we uploaded in step 2
+      const {public_id} = resultUploadFile;
+      await addProductSaveToDB({
+        ...body, images: [{order: 1, imageId: public_id}]
+      }).unwrap();
+      
+      reset(); // clear inputs
+      setFiles([]);  // clear file input
+      setPreview(null);
+      // refetch(); // dont need this, we simply invalidate the products call on that enpoint def
+    }catch(err){
+      console.log('err catch in new product submit', err);
     }
-
-    // 3- save document to DB
-    const {public_id} = resultUploadFile.data;
-    const resultUploadDocument = await addProductSaveToDB({...body, images: [{order: 1, imageId: public_id}]});
-    if(resultUploadDocument.error){
-      console.error(resultUploadDocument.error);
-      return
-    }
-    
-    reset(); // clear inputs
-    setFiles([]);  // clear file input
-    // refetch(); // refetch all products
-    setPreview(null);
   }
-
-  // console.log(errors)
-  // console.log('ValuesL', getValues())
 
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)}

@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
 import logoSvgUrl from '../assets/react.svg'
 import logoutSvg from '../assets/logout.svg'
+import profile from '../assets/profile.svg'
+import profile2 from '../assets/profile2.svg'
 import { useAppSelector } from '@/store/store';
 import {
   DropdownMenu,
@@ -39,10 +41,23 @@ export function Navbar() {
           <DropdownMenuTrigger>
             <img className='cursor-pointer h-[45px] rounded-full' src={user.authProviders.google.profilePicture}/>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align='end'>
-            <DropdownMenuItem className='space-x-2 cursor-pointer'>
+          <DropdownMenuContent align='end' className='min-w-[240px]'>
+            <div className='mt-1 mb-[2px] grid grid-flow-col px-3 gap-x-2'>
+              <img className='cursor-pointer h-[45px] rounded-full' src={user.authProviders.google.profilePicture}/>
+              <div className='grid content-center'>
+                <p className='text-[0.85rem]'>level: {user.userLevel}</p>
+                <p className='text-[0.85rem]'>{user.username}</p>
+              </div>
+            </div>
+            <Link to={'/profile'}>
+              <DropdownMenuItem className='space-x-2 cursor-pointer'>
+                <img src={profile} className='w-[26px]'/>
+                <span>Profile</span>
+              </DropdownMenuItem>
+            </Link>
+            <DropdownMenuItem className='space-x-2 cursor-pointer' onClick={() => logout()}>
               <img src={logoutSvg} className='w-[26px]'/>
-              <button onClick={() => logout()}>Log out</button>
+              <span>Log out</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu> 
