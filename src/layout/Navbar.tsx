@@ -19,12 +19,12 @@ export function Navbar() {
   return (
     <nav className="grid grid-flow-col justify-between px-8 bg-slate-900 text-neutral-100">
       <div className='grid gap-x-4 grid-flow-col justify-start'>
-        <Link to={'/'}>
+        <Link to={'/shop'}>
           <img src={logoSvgUrl} className='w-[40px] py-[10px] cursor-pointer'/>
         </Link>
         <ul className="grid grid-flow-col text-[24px]">
           {[
-            ['Home', '/'],
+            // ['Home', '/'],
             ['Shop', '/shop'],
             ['Admin', '/admin'],
             ['UserLevel', '/userLevel'],

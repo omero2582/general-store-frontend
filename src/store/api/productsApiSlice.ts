@@ -1,6 +1,8 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { setUser } from "../slices/userSlice";
 
+// TODO prob combine all api slices into one api slice
+
 // // Custom baseQuery to handle user state
 // const customBaseQuery = (baseUrl) => {
 //   const baseQuery = fetchBaseQuery({ baseUrl });
@@ -31,6 +33,10 @@ export const productsApiSlice = createApi({
   endpoints: (builder) => ({
 
     // public
+    getProduct: builder.query({
+      query: (id) => `/products/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Products', id }],
+    }),
     getProducts: builder.query({
       query: () => '/products',
       async onQueryStarted(arg, api){
@@ -109,6 +115,7 @@ export const productsApiSlice = createApi({
 // same with the other apiSlice
 
 export const { 
+  useGetProductQuery,
   useGetProductsQuery,
   useGetProductsAdminQuery,
   useAddProductSaveToDBMutation,
