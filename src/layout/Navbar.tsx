@@ -3,6 +3,9 @@ import logoSvgUrl from '../assets/react.svg'
 import logoutSvg from '../assets/logout.svg'
 import profile from '../assets/profile.svg'
 import profile2 from '../assets/profile2.svg'
+import cart from '../assets/cart1.svg'
+import cart2 from '../assets/cart2.svg'
+import { MdShoppingCart } from "react-icons/md";
 import { useAppSelector } from '@/store/store';
 import {
   DropdownMenu,
@@ -11,11 +14,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useLogoutGoogleMutation, useMeQuery } from '@/store/api/authSlice';
+import { useGetCartQuery } from '@/store/api/apiSlice'
 
 export function Navbar() {
   const user = useAppSelector((state) => state.user.user);
   const {isLoading, data} = useMeQuery();
   const [logout, resLogout] = useLogoutGoogleMutation();
+
+  const cartQuery = useGetCartQuery(undefined, {
+    // refetchOnMountOrArgChange: 20, // similar to Tansatck Query staleTime
+    /// not sure if I should have above uncommented here
+    skip: !user
+  });
+
   return (
     <nav className="grid grid-flow-col justify-between px-8 bg-slate-900 text-neutral-100">
       <div className='grid gap-x-4 grid-flow-col justify-start'>
@@ -35,32 +46,40 @@ export function Navbar() {
           ))}
         </ul>
       </div>
-      <div className='grid content-center h-full'>
+      <div className='grid  grid-flow-col h-full'>
         {user ?
+          <>
+          <Link to={'/cart'} className='grid grid-flow-col content-center px-3 hover:bg-slate-800'>
+            <MdShoppingCart className='w-full h-full' />
+            <span className='text-[1.5rem] font-medium'>
+              {cartQuery?.data?.cart?.items?.reduce((sum, cur) => sum += cur.quantity, 0) || 0}
+            </span>
+          </Link>
           <DropdownMenu>
-          <DropdownMenuTrigger>
-            <img className='cursor-pointer h-[45px] rounded-full' src={user.authProviders.google.profilePicture}/>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align='end' className='min-w-[240px]'>
-            <div className='mt-1 mb-[2px] grid grid-flow-col px-3 gap-x-2'>
-              <img className='cursor-pointer h-[45px] rounded-full' src={user.authProviders.google.profilePicture}/>
-              <div className='grid content-center'>
-                <p className='text-[0.85rem]'>level: {user.userLevel}</p>
-                <p className='text-[0.85rem]'>{user.username}</p>
+            <DropdownMenuTrigger className='hover:bg-slate-800 px-2'>
+              <img className=' cursor-pointer h-[45px] rounded-full' src={user.authProviders.google.profilePicture}/>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end' className='min-w-[240px]'>
+              <div className='mt-1 mb-[2px] grid grid-flow-col px-3 gap-x-2'>
+                <img className='cursor-pointer h-[45px] rounded-full' src={user.authProviders.google.profilePicture}/>
+                <div className='grid content-center'>
+                  <p className='text-[0.85rem]'>level: {user.userLevel}</p>
+                  <p className='text-[0.85rem]'>{user.username}</p>
+                </div>
               </div>
-            </div>
-            <Link to={'/profile'}>
-              <DropdownMenuItem className='space-x-2 cursor-pointer'>
-                <img src={profile} className='w-[26px]'/>
-                <span>Profile</span>
+              <Link to={'/profile'}>
+                <DropdownMenuItem className='space-x-2 cursor-pointer'>
+                  <img src={profile} className='w-[26px]'/>
+                  <span>Profile</span>
+                </DropdownMenuItem>
+              </Link>
+              <DropdownMenuItem className='space-x-2 cursor-pointer' onClick={() => logout()}>
+                <img src={logoutSvg} className='w-[26px]'/>
+                <span>Log out</span>
               </DropdownMenuItem>
-            </Link>
-            <DropdownMenuItem className='space-x-2 cursor-pointer' onClick={() => logout()}>
-              <img src={logoutSvg} className='w-[26px]'/>
-              <span>Log out</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu> 
+            </DropdownMenuContent>
+          </DropdownMenu>
+          </>
           : isLoading?
           <div className='bg-stone-300 h-[45px] w-[45px] rounded-full'></div>
           :<a 

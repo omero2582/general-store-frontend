@@ -1,4 +1,4 @@
-import { useGetProductsQuery } from "@/store/api/productsApiSlice";
+import { useGetProductsQuery } from "@/store/api/apiSlice";
 import Products from "../Products";
 
 export default function Shop (){

@@ -1,5 +1,5 @@
 import { AspectRatio } from "@radix-ui/react-aspect-ratio";
-import { useDeleteProductMutation, useGetProductsAdminQuery, useGetProductsQuery } from "../store/api/productsApiSlice";
+import { useDeleteProductMutation, useGetProductsAdminQuery, useGetProductsQuery } from "../store/api/apiSlice";
 import StarRatings from 'react-star-ratings';
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";

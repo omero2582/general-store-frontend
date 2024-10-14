@@ -1,6 +1,6 @@
 import { AspectRatio } from "@/components/AspectRatio";
 import NumberInput from "@/components/NumberInput/NumberInput";
-import { useGetProductQuery } from "@/store/api/productsApiSlice"
+import { useAddCartProductMutation, useGetProductQuery } from "@/store/api/apiSlice"
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import StarRatings from 'react-star-ratings';
@@ -18,6 +18,8 @@ export default function ProductDetail() {
 
   const { id } = useParams();
   const {data, isLoading, isError} = useGetProductQuery(id);
+
+  const [addCartProduct, resAddCartProduct] = useAddCartProductMutation();
 
   if(isLoading){
     return (
@@ -62,7 +64,12 @@ export default function ProductDetail() {
               <span>{new Intl.NumberFormat('en').format(numRatings)} ratings</span>
             </div>
         <NumberInput value={quantityBuy} setValue={setQuantityBuy}/>
-        <button className="w-[117px] h-[36px] bg-yellow-400">Add to Cart</button>
+        <button
+          onClick={() => addCartProduct({productId: id, quantity: quantityBuy})}
+          className="w-[117px] h-[36px] bg-yellow-400"
+        >
+          Add to Cart
+        </button>
         <div className="mt-[10px]">
             <p className="font-[700] text-[1.1rem]">Product Description</p>
            <p>{description}</p>

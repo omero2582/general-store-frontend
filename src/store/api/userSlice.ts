@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import {productsApiSlice} from "./productsApiSlice.ts";
+import {apiSlice} from "./apiSlice.ts";
 
 export const userApiSlice = createApi({
   reducerPath: 'userApi',
@@ -18,7 +18,7 @@ export const userApiSlice = createApi({
           await queryFulfilled;
 
           // Invalidate the product cache after successful user role change
-          dispatch(productsApiSlice.util.invalidateTags(['Users']));
+          dispatch(apiSlice.util.invalidateTags(['Users']));
         } catch (err) {
           // Handle error
         }

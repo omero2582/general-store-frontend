@@ -1,7 +1,7 @@
 import { Action, configureStore, ThunkAction } from '@reduxjs/toolkit'
 // Or from '@reduxjs/toolkit/query/react'
 import { setupListeners } from '@reduxjs/toolkit/query'
-import {  productsApiSlice } from './api/productsApiSlice'
+import {  apiSlice } from './api/apiSlice'
 import {  authApiSlice } from './api/authSlice'
 import { fetchMiddleware } from './middleware'
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
@@ -12,7 +12,7 @@ export const store = configureStore({
   reducer: {
     // Add the generated reducer as a specific top-level slice
     user: userReducer,
-    [productsApiSlice.reducerPath]: productsApiSlice.reducer,
+    [apiSlice.reducerPath]: apiSlice.reducer,
     [authApiSlice.reducerPath]: authApiSlice.reducer,
     [userApiSlice.reducerPath]: userApiSlice.reducer,
   },
@@ -20,7 +20,7 @@ export const store = configureStore({
   // and other useful features of `rtk-query`.
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
-      .concat(productsApiSlice.middleware)
+      .concat(apiSlice.middleware)
       .concat(authApiSlice.middleware)
       .concat(userApiSlice.middleware)
       .concat(fetchMiddleware)

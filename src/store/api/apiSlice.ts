@@ -25,14 +25,14 @@ import { setUser } from "../slices/userSlice";
 // using mock fetch, apart from our .env variable
 // for ex 'query: (body, isUseMock) =>
 const cloudname = import.meta.env.VITE_CLOUDINARY_NAME;
-export const productsApiSlice = createApi({
+export const apiSlice = createApi({
   reducerPath: 'productsApi',
   baseQuery: fetchBaseQuery({baseUrl: '/api'}),
   // baseQuery: customBaseQuery('/api'),
-  tagTypes: ['Products', 'LIST', 'Users'],
+  tagTypes: ['Products', 'LIST', 'Users', 'Cart'],
   endpoints: (builder) => ({
 
-    // public
+    // products
     getProduct: builder.query({
       query: (id) => `/products/${id}`,
       providesTags: (result, error, id) => [{ type: 'Products', id }],
@@ -100,6 +100,83 @@ export const productsApiSlice = createApi({
         { type: 'Products', id: 'LIST' }
       ],
     }),
+
+    // cart
+    // ?? think about current approach
+    // Remmeber RTK Query's cache tags are not used for cache storage, they are
+    // just used to decide which queries will be invalidated by a mutation
+    // In scenario below, I want to invalidate the cart whenever the cart is changed,
+    // or whenevera product is changed by an admin in the frontend???
+    // HMMMMMMM
+    // wait now that I think about it...
+    // if admin changes a product, and regular user has cart opened, then 
+    // they will never see this change....................
+    // I think scratch my code below and instead refetch the whole cart everytime???
+
+    // but what about PRODUCTS endpoints above ????
+    // doenst it also run into the same exact problem??
+    // if an admin changes a product, and user has window opened, the will
+    // never see this change because their query will never be invalidated
+    // HMMMMMMMMMMMMMMMMMMMMMMMMM have to re-read some of the RKT Query stuff.... 
+    
+    // TODO new. Now that I think about it, invalidating queries can only
+    // solve the problem of: 'If I performed an action, then refetch this other thing.'
+    // However, invalidating queries has nothing to do with 'When should any user
+    // refetch this query, considering other users might change the backend data.'
+    // That problem can only be solved by things like 'refetchOnMount', or 'keepUnusedDataFor'
+    // I think ideally, we just refetch on mount and probably remove the product tags
+    // We can keep the Cart tags though because these will always only be changed by the same user
+    // Although they could change them from different clients, but thats ok at least they know they data is out of sync
+    // if they kept the other window opened. refetchOnMount would maybe solve that
+    // But ofc I would much prefer to have Tanstack Query's staleTime here.
+    // For now maybe just keep these tags, so that managing the cart in the cart page
+    // will trigger more cart fetches, but consider adding refetchOnMount and taking out productTags
+    // TODO new, also adding to above: it seems like refetchOnMount can take a
+    // number argument, which makes it behave similar to tanstack Query staleTime
+    getCart: builder.query({
+      query: () => `/cart`,
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.cart.items.map(({ product }) => ({ type: 'Products', id: product.id })),
+              { type: 'Products', id: 'LIST' }, { type: 'Cart', id: 'LIST' }
+            ]
+          : [{ type: 'Products', id: 'LIST' }, { type: 'Cart', id: 'LIST' }],
+    }),
+
+    addCartProduct: builder.mutation({
+      query: (body) => ({
+        url: `/cart`,
+        method: 'POST',
+        body
+      }),
+      invalidatesTags: [
+        { type: 'Cart', id: 'LIST' }
+      ],
+    }),
+
+    editCartProduct: builder.mutation({
+      query: (body) => ({
+        url: `/cart`,
+        method: 'PATCH',
+        body
+      }),
+      invalidatesTags: [
+        { type: 'Cart', id: 'LIST' }
+      ],
+    }),
+
+    deleteCartProduct: builder.mutation({
+      query: (id) => ({
+        url: `/cart/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: [
+        { type: 'Cart', id: 'LIST' }
+      ],
+    }),
+    
+
     //
 
     // typescript template return
@@ -122,8 +199,13 @@ export const {
   useAddProductUploadImageMutation,
   useAddProductPresignedUrlMutation,
   useDeleteProductMutation,
-} = productsApiSlice;
 
-export default productsApiSlice.reducer;
+  useGetCartQuery,
+  useAddCartProductMutation,
+  useEditCartProductMutation,
+  useDeleteCartProductMutation,
+} = apiSlice;
+
+export default apiSlice.reducer;
 
 // For TypeScript usage, the builder.query() and builder.mutation() endpoint definition functions accept two generic arguments: <ReturnType, ArgumentType>. For example, an endpoint to fetch a Pokemon by name might look like getPokemonByName: builder.query<Pokemon, string>(). If a given endpoint takes no arguments, use the void type, like getAllPokemon: builder.query<Pokemon[], void>().

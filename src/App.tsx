@@ -12,6 +12,8 @@ import UserLevelSwitch from './pages/UserLevelSwitch'
 import { Toaster } from './components/ui/toaster'
 import Profile from './pages/Profile/Profile'
 import ProductDetail from './pages/ProductDetail/ProductDetail'
+import Footer from './layout/Footer'
+import Cart from './pages/Cart/Cart'
 // import { productSchema } from '@shared/schemas/schemas'
 // console.log(productSchema.shape)
 
@@ -24,7 +26,7 @@ function App() {
 
   return (
     <BrowserRouter>
-    <div className='grid'>
+    <div className='grid grid-rows-[auto_1fr_auto] min-h-[100vh] items-start'>
       <Navbar/>
       <Routes>
         <Route path="/" element={<Navigate to="/shop"/> }/>
@@ -34,10 +36,12 @@ function App() {
         <Route path="/userLevel" element={<UserLevelSwitch />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="/cart" element={<Cart />} />
       </Routes>
-      <div className='grid overflow-hidden'>
+      <Footer/>
+      {/* <div className='grid overflow-hidden'>
         <pre>{JSON.stringify({...rest}, null, 2)}</pre>
-      </div>
+      </div> */}
       <Toaster />
     </div>
     </BrowserRouter>

@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import {  useAddProductPresignedUrlMutation, useAddProductUploadImageMutation, useAddProductSaveToDBMutation, useDeleteProductMutation } from "../../store/api/productsApiSlice";
+import {  useAddProductPresignedUrlMutation, useAddProductUploadImageMutation, useAddProductSaveToDBMutation, useDeleteProductMutation } from "../../store/api/apiSlice";
 import { TProductSchemaNoImage } from '@shared/schemas/schemas'
 import Input from "./Input";
 import {useDropzone} from 'react-dropzone'
