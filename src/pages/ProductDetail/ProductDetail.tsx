@@ -1,5 +1,6 @@
 import { AspectRatio } from "@/components/AspectRatio";
 import NumberInput from "@/components/NumberInput/NumberInput";
+import { getPrice } from "@/lib/utils";
 import { useAddCartProductMutation, useGetProductQuery } from "@/store/api/apiSlice"
 import { useState } from "react";
 import { useParams } from "react-router-dom";
@@ -45,7 +46,7 @@ export default function ProductDetail() {
       </div>
       <div className="grid gap-y-[5px] max-w-[400px]">
         <h1 className="text-[1.4rem] leading-snug">{name}</h1>
-        <p className="text-[1.8rem] font-[500]">${price}</p>
+        <p className="text-[1.8rem] font-[500]">{getPrice(price)}</p>
         <div className=" grid grid-flow-col justify-start content-center">
               <span>{averageRating}</span>
               <div className="mt-[-2px] ml-[5px] mr-[8px]">

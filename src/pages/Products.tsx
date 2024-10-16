@@ -3,20 +3,11 @@ import { useDeleteProductMutation, useGetProductsAdminQuery, useGetProductsQuery
 import StarRatings from 'react-star-ratings';
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
+import { getPrice } from "@/lib/utils";
 
 export default function Products({showAdmin = false, query}) {
   const [deleteDocument, resDeleteDocument] = useDeleteProductMutation();
   const {data, refetch} = query;
-
-  const getPrice = (price) => {
-    if(price === 0){
-      return 'FREE'
-    } else if (!price){
-      return '-'
-    } else{
-      return new Intl.NumberFormat('en', { style: 'currency', currency: 'USD' }).format(price)
-    }
-  }
   
   return (
 
