@@ -1,5 +1,6 @@
 import { useMeQuery } from "@/store/api/authSlice";
 import { useAppSelector } from "@/store/store";
+import { formatDistance, formatDistanceToNowStrict } from "date-fns";
 
 
 export default function Profile() {
@@ -9,7 +10,7 @@ export default function Profile() {
   // so that it always refetches when this page loads
 
 
-  if(!user && !isFetching){
+  if(!user || isFetching){
     return (
       <div className="grid justify-center justify-items-start">
         <h1 className="text-[1.8rem] font-medium">Profile</h1>
@@ -23,23 +24,33 @@ export default function Profile() {
       </div>
     )
   }
-
-  const {userLevel, name, nameFull, email, username, createdAt} = user || {};
-  const dateOriginal = new Date(createdAt || null);
+  //
+  const {userLevel, displayName, nameFull, email, username, createdAt, cookie} = user || {};
   // const date2 = dateOriginal.toString()
   const date = new Intl.DateTimeFormat(undefined, { 
     dateStyle: 'medium', timeStyle: 'long'
-  }).format(new Date(dateOriginal))
+  }).format(new Date(createdAt || null))
   return (
     <div className="grid justify-center">
       <h1 className="text-[1.8rem] font-medium">Profile</h1>
       <p>User Level: {userLevel}</p>
-      <p>Display Name: {name}</p>
+      <p>Display Name: {displayName}</p>
       <p>First Name: {nameFull?.firstName}</p>
       <p>Last Name: {nameFull?.lastName}</p>
       <p>Username: {username}</p>
       <p>Email: {email}</p>
-      <p>Date created: {date}</p>
+      <p>User created At: {date}</p>
+      <div className="mt-4">
+        <p>Current Session Info:</p>
+        <p>{'Expires in: '}
+          {formatDistanceToNowStrict(new Date(cookie?.expires || null), {roundingMethod: 'floor'})}
+          {' ('} 
+          {new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'long'})
+            .format(new Date(cookie?.expires || null))}
+          {')'} 
+        </p>
+        <p>Original Expiry Time: {formatDistance(0, cookie?.originalMaxAge || null, {includeSeconds: true})}</p>
+      </div>
     </div>
   )
 }

@@ -4,8 +4,8 @@ import Products from "../Products";
 export default function Shop (){
   const productsQuery = useGetProductsQuery(null);
   return (
-  <div className=''>
-    <h1>Shop</h1>
+  <div className='pt-[24px]'>
+    <h1 className="sr-only">Shop</h1>
     <Products query={productsQuery}/>
   </div>
   )

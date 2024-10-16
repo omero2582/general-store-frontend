@@ -3,7 +3,7 @@
     // new
     "baseUrl": ".",
     "paths": {
-      "@shared/*": ["../general-store-shared/*"],
+      "@shared/*": ["../shared/*"],
       "@/*": ["./src/*"]
     },
     //

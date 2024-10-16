@@ -18,7 +18,7 @@ export default function CartItem({item}) {
   // const handleChangeValue = (value) => editCartProduct({productId: id, quantity:value})
 
   return(
-    <div className={`overflow-hidden rounded bg-blue-200 items-center justify-center grid grid-cols-[minmax(0px,_130px),_minmax(0px,_500px),_minmax(0px,_100px)]`}>
+    <div className={`border-slate-700 pl-1 border-[3px] leading-snug overflow-hidden rounded items-center justify-center grid grid-cols-[minmax(0px,_130px),_minmax(0px,_450px),_minmax(0px,_100px)]`}>
       <Link to={`/product/${id}`}>
         <div className="bg-stone-100">
           <AspectRatio ratio={1} className="flex place-content-center">
@@ -26,24 +26,24 @@ export default function CartItem({item}) {
           </AspectRatio >
         </div>
       </Link>
-      <div className="bg-white px-4 py-2">
-        <Link to={`/product/${id}`}><p className="font-medium text-[1.2rem] line-clamp-4 hover:underline">{name}</p></Link>
-        <p>{description}</p>
+      <div className="py-2 pl-4 pr-2">
+        <Link to={`/product/${id}`}><p className="line-clamp-2 font-medium text-[1.2rem] hover:underline">{name}</p></Link>
+        <p className='line-clamp-2'>{description}</p>
         <p>{getPrice(price)}</p>
         <NumberInput className={'mt-1 mb-[2px]'} value={quantityState} setValue={setQuantityState} isDisabled={resEditCartProduct.isLoading}/>
         <div className='space-x-3'>
-          <button disabled={resEditCartProduct.isLoading} onClick={() => deleteCartProduct(id) }  className="disabled:no-underline disabled:text-stone-400 hover:underline text-blue-600 font-medium">
+          <button disabled={resEditCartProduct.isLoading} onClick={() => deleteCartProduct(id) }  className="disabled:no-underline disabled:text-stone-400 hover:underline text-blue-700 font-medium">
            Remove
           </button>
           {quantity !== quantityState &&
-          <button disabled={resEditCartProduct.isLoading} onClick={() => editCartProduct({productId: id, quantity: quantityState})} className="disabled:no-underline disabled:text-stone-400 hover:underline text-blue-600 font-medium">
+          <button disabled={resEditCartProduct.isLoading} onClick={() => editCartProduct({productId: id, quantity: quantityState})} className="disabled:no-underline disabled:text-stone-400 hover:underline text-blue-700 font-medium">
             Submit
           </button>
           }
         </div>
       </div>
-      <p className="bg-green-300 self-center text-[1.1rem] font-medium">
-        {quantity === quantityState ? getPrice(itemTotal) : 'submit quantity'}
+      <p className="self-center text-[1.1rem] font-medium text-center">
+        {quantity === quantityState ? getPrice(itemTotal) : 'Submit Quantity'}
       </p>
       </div>
     )

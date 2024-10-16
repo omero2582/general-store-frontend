@@ -20,23 +20,25 @@ export default function Cart() {
   }
 
   return (
-    <div className="bg-stone-100">
-      <h1 className="text-center font-medium text-[1.8rem] pt-[10px]">Your Cart</h1>
+    <div className="bg-stone-100 min-h-full">
+      <h1 className="text-center font-medium text-[1.8rem] pt-[13px] leading-tight">Your Cart</h1>
       {data?.cart?.items?.length <= 0 ? 
       <p className="text-center pt-[6px]">Your Cart is empty. Check out <Link to={'/store'} className="text-blue-500">the shop</Link> and add some items</p>
       :
       <>
-      <div className={`bg-purple-400 justify-center grid grid-cols-[minmax(0px,_630px),_minmax(0px,_100px)] `}>
+      <div className={`justify-center grid grid-cols-[minmax(0px,_580px),_minmax(0px,_100px)] `}>
         <div></div>
-        <p className="text-[1.15rem] font-medium">Item Total</p>
+        <p className="text-[1.15rem] font-medium text-center">Item Total</p>
       </div>
-      <div className="bg-red-400 space-y-2 grid justify-center ">
+      <div className="space-y-2 grid justify-center ">
       {data?.cart?.items?.map(item => (<CartItem item={item}/>))}
-        </div>
-        <div className={`max-w-[730px] mx-auto bg-yellow-400`}>
-          <p className="text-end font-medium text-[1.15rem]">Subtotal: {getPrice(data.cart.total)}</p>
-        </div>
-        </>
+      </div>
+      {/* <div className={`max-w-[680px] mx-auto bg-yellow-400`}> */}
+      <div className={`mt-2 bg-amber-300 text-[1.15rem] justify-center grid grid-cols-[minmax(0px,_580px),_minmax(0px,_100px)] `}>
+        <p className="text-end">Subtotal: </p>
+        <p className="font-medium text-center">{getPrice(data.cart.total)}</p>
+      </div>
+      </>
       }
     </div>
   )

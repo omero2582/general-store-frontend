@@ -15,6 +15,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useLogoutGoogleMutation, useMeQuery } from '@/store/api/authSlice';
 import { useGetCartQuery } from '@/store/api/apiSlice'
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar"
 
 export function Navbar() {
   const user = useAppSelector((state) => state.user.user);
@@ -57,11 +62,19 @@ export function Navbar() {
           </Link>
           <DropdownMenu>
             <DropdownMenuTrigger className='hover:bg-slate-800 px-2'>
-              <img className=' cursor-pointer h-[45px] rounded-full' src={user.authProviders.google.profilePicture}/>
+              {/* <img className=' cursor-pointer h-[45px] rounded-full' src={user.authProviders.google.profilePicture}/> */}
+              <Avatar className='h-[45px] w-auto'>
+                <AvatarImage src={user.authProviders.google.profilePicture} />
+                <AvatarFallback className='h-[45px] w-[45px] bg-neutral-600'></AvatarFallback>
+              </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end' className='min-w-[240px]'>
               <div className='mt-1 mb-[2px] grid grid-flow-col px-3 gap-x-2'>
-                <img className='cursor-pointer h-[45px] rounded-full' src={user.authProviders.google.profilePicture}/>
+                {/* <img className='cursor-pointer h-[45px] rounded-full' src={user.authProviders.google.profilePicture}/> */}
+                <Avatar className='h-[45px] w-auto'>
+                  <AvatarImage src={user.authProviders.google.profilePicture} />
+                  <AvatarFallback className='h-[45px] w-[45px] bg-neutral-600'></AvatarFallback>
+                </Avatar>
                 <div className='grid content-center'>
                   <p className='text-[0.85rem]'>level: {user.userLevel}</p>
                   <p className='text-[0.85rem]'>{user.username}</p>
