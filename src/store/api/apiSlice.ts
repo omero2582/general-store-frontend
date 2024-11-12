@@ -29,7 +29,7 @@ export const apiSlice = createApi({
   reducerPath: 'productsApi',
   baseQuery: fetchBaseQuery({baseUrl: '/api'}),
   // baseQuery: customBaseQuery('/api'),
-  tagTypes: ['Products', 'LIST', 'Users', 'Cart'],
+  tagTypes: ['Products', 'LIST', 'Users', 'Cart', 'Categories'],
   endpoints: (builder) => ({
 
     // products
@@ -175,7 +175,46 @@ export const apiSlice = createApi({
         { type: 'Cart', id: 'LIST' }
       ],
     }),
-    
+
+    //
+    // categories
+    getCategories: builder.query({
+      query: () => `/categories`,
+      providesTags: (result) =>
+       [{ type: 'Categories', id: 'LIST' }],
+    }),
+
+    addCategory: builder.mutation({
+      query: (body) => ({
+        url: `/categories`,
+        method: 'POST',
+        body
+      }),
+      invalidatesTags: [
+        { type: 'Categories', id: 'LIST' }
+      ],
+    }),
+
+    editCategory: builder.mutation({
+      query: ({body, id}) => ({
+        url: `/categories/${id}`,
+        method: 'PATCH',
+        body
+      }),
+      invalidatesTags: [
+        { type: 'Categories', id: 'LIST' }
+      ],
+    }),
+
+    deleteCategory: builder.mutation({
+      query: (id) => ({
+        url: `/categories/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: [
+        { type: 'Categories', id: 'LIST' }
+      ],
+    }),
 
     //
 
@@ -192,6 +231,7 @@ export const apiSlice = createApi({
 // same with the other apiSlice
 
 export const { 
+  //products
   useGetProductQuery,
   useGetProductsQuery,
   useGetProductsAdminQuery,
@@ -199,11 +239,16 @@ export const {
   useAddProductUploadImageMutation,
   useAddProductPresignedUrlMutation,
   useDeleteProductMutation,
-
+  // cart
   useGetCartQuery,
   useAddCartProductMutation,
   useEditCartProductMutation,
   useDeleteCartProductMutation,
+  //categories
+  useGetCategoriesQuery,
+  useAddCategoryMutation,
+  useDeleteCategoryMutation,
+  useEditCategoryMutation,
 } = apiSlice;
 
 export default apiSlice.reducer;

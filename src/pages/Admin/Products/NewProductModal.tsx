@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
-import {  useAddProductPresignedUrlMutation, useAddProductUploadImageMutation, useAddProductSaveToDBMutation, useDeleteProductMutation } from "../../store/api/apiSlice";
-import { TProductSchemaNoImage } from '@shared/schemas/schemas'
-import Input from "./Input";
+import {  useAddProductPresignedUrlMutation, useAddProductUploadImageMutation, useAddProductSaveToDBMutation, useDeleteProductMutation } from "../../../store/api/apiSlice";
+import { TProductSchemaNoImage } from '@shared/dist/schemas'
+import Input from "../Input";
 import {useDropzone} from 'react-dropzone'
 import { AspectRatio } from "@/components/AspectRatio";
 
@@ -38,7 +38,7 @@ export function NewProductModal({formHook}) {
     formState: {errors, isSubmitting},
     reset,
     setError,
-    getValues
+    watch
   } = formHook;
 
   //

@@ -4,7 +4,7 @@ import { useMeQuery } from '@/store/api/authSlice';
 import { useChangeUserLevelMutation } from '@/store/api/userSlice';
 import { useAppSelector } from '@/store/store';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { changeUserLevelSchema, TChangeUserLevelSchema } from '@shared/schemas/schemas';
+import { changeUserLevelSchema, TChangeUserLevelSchema } from '@shared/dist/schemas';
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form';
 
