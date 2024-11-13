@@ -19,6 +19,12 @@ Pretty sure its the same as staleTime in Tanstack Query
 // RTK QUERY cahce
 https://redux-toolkit.js.org/rtk-query/usage/automated-refetching
 
+// SVGs
+switched to using vite-plugin-svgr for SVGs. This lets us easily
+import svgs as react components, so that we can change the svg's colors
+from the JSX. Some SVGs might need their contents inside the file
+changed to 'fill=currentColor'
+
 TO SOLVE:
 edit route
 google image rate limits

@@ -1,10 +1,7 @@
 import { Link } from 'react-router-dom'
 import logoSvgUrl from '../assets/react.svg'
-import logoutSvg from '../assets/logout.svg'
-import profile from '../assets/profile.svg'
-import profile2 from '../assets/profile2.svg'
-import cart from '../assets/cart1.svg'
-import cart2 from '../assets/cart2.svg'
+import Logout from '../assets/logout.svg?react'
+import Profile from '../assets/profile.svg?react'
 import { MdShoppingCart } from "react-icons/md";
 import { useAppSelector } from '@/store/store';
 import {
@@ -82,12 +79,12 @@ export function Navbar() {
               </div>
               <Link to={'/profile'}>
                 <DropdownMenuItem className='space-x-2 cursor-pointer'>
-                  <img src={profile} className='w-[26px]'/>
+                  <Profile className='w-[26px] h-auto'/>
                   <span>Profile</span>
                 </DropdownMenuItem>
               </Link>
               <DropdownMenuItem className='space-x-2 cursor-pointer' onClick={() => logout()}>
-                <img src={logoutSvg} className='w-[26px]'/>
+                <Logout className='w-[26px] h-auto'/>
                 <span>Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
