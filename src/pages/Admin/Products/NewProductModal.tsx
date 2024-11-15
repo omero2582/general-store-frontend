@@ -6,84 +6,53 @@ import {useDropzone} from 'react-dropzone'
 import { AspectRatio } from "@/components/AspectRatio";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command";
 import CloseSvg from '@/assets/close2.svg?react';
+import { useController, UseFormReturn } from "react-hook-form";
 
-export function NewProductModal({formHook}) {
+export function NewProductModal({formHook} : {formHook: UseFormReturn}) {
   
+  // Form setup
+  const { 
+    register, handleSubmit, formState: {errors, isSubmitting}, reset, setError, watch, control,
+  } = formHook;
+  // Moved useForm() call outside of this component, and now it comes as props,
+  // Otherwise the state of the form would be cleared on as soon as modal closes.
+
+  const { field } = useController({
+    name: "categories",
+    control,
+    defaultValue: [],
+  });
+  
+  // TODO TODO - maybe everything between this comment and below should be redux state instead
   //
-  const {data, isFetching, error, isSuccess} = useGetCategoriesQuery();
+  // Categories state
   const [categoriesToAdd, setCategoriesToAdd]= useState([]);
-  const categoriesSorted = useMemo(() => {
-    console.log('SORT categories');
-    if(data){
-      return [...data.categories].sort((a, b) => a.name.localeCompare(b.name))
-    }
-    return []
-    
-  }, [data]);
-  const categoriesNotSelected = []
-  const categoriesSelected = []
-  categoriesSorted.map(c => {
-    if(categoriesToAdd.includes(c.id)){
-      categoriesSelected.push(c);
-    }else{
-      categoriesNotSelected.push(c);
-    }
-  })
 
   const handleAddCategory = (category) => {
-    setCategoriesToAdd(c => ([...c, category.id]));
+    setCategoriesToAdd(c => {
+      const updatedCategories = [...c, category.id];
+      field.onChange(updatedCategories);
+      return updatedCategories;
+    });
   }
 
   const handleRemoveCategory = (c) => {
-    setCategoriesToAdd(prev => prev.filter(cat => cat !== c.id))
+    setCategoriesToAdd(prev => {
+      const updatedCategories = prev.filter(cat => cat !== c.id);
+      field.onChange(updatedCategories);
+      return updatedCategories;
+    });
   }
 
-  // const categoriesNotSelected = categoriesSorted.filter(c => !categoriesToAdd.includes(c.id))
-  // const categoriesSelected = categoriesSorted.filter(c => categoriesToAdd.includes(c.id))
-  //
-  
+  // Files State  
   const [files, setFiles] = useState<File[]>([]);
   const [preview, setPreview] = useState<string | ArrayBuffer | null>(null);
-  //
-  const onDrop = useCallback((acceptedFiles: Array<File>) => {
-    // preview image
-    const file = new FileReader;
-    file.onload = function() {
-      setPreview(file.result);
-    }
-    file.readAsDataURL(acceptedFiles[0]);
-
-    // change out stateFiles
-    setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
-  }, [])
-
-  const { acceptedFiles, getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: {
-      'image/png': ['.jpg', '.png', '.webp', '.jfif']
-    }
-  });
-
 
 
   //
-  const {
-    register,
-    handleSubmit,
-    formState: {errors, isSubmitting},
-    reset,
-    setError,
-    watch
-  } = formHook;
-
-  //
-  // TODO, moved useForm() call outside of this component, and now it comes as props,
-  // Otherwise the state of the form would be cleared on as soon as modal closes.
-  // Have to think about this thought bc I am not sure of the exact behavior that I want.
-  // Also, we would have to also move the file and preview state outside of this container
-
-
-  // const {data, isError, isLoading, isSuccess, error, status} = request
+  //TODO TODO - maybe everything between this comment and above should be redux state instead
+  
+  // Submit Form
   const [addProductPresignedUrl, resAddProductPresignedUrl] = useAddProductPresignedUrlMutation();
   const [addProductUploadImage, resAddProductUploadImage] = useAddProductUploadImageMutation();
   const [addProductSaveToDB, resAddProductSaveToDB] = useAddProductSaveToDBMutation();
@@ -149,50 +118,20 @@ export function NewProductModal({formHook}) {
               <option value="private">Private</option>
             </select>
           </div>
-          <CategorySelect categories={categoriesNotSelected} handleAddCategory={handleAddCategory}/>
-          <div className= "space-x-2 space-y-[3px] grid justify-items-start">
-            {categoriesSelected.map(c => (
-              <button key={c.id} className="relative flex items-center rounded-md space-x-[3px] bg-neutral-800 text-neutral-100 pl-[9px] pr-[5px] py-[3px]">
-                <span>{c.name}</span>
-                {/* <span 
-                  className="cursor-pointer absolute bg-black text-white w-2 h-2" 
-                  onClick={() => setCategoriesToAdd(prev => prev.filter(cat => cat !== c.id))}
-                >
-                  x
-                </span> */}
-                {/* <CloseSvg 
-                  className='absolute cursor-pointer rounded-md border-black border bg-white text-black w-[13px] h-auto top-[-3px] right-[-5px]'
-                  onClick={() => setCategoriesToAdd(prev => prev.filter(cat => cat !== c.id))}
-                /> */}
-                <CloseSvg 
-                  className='cursor-pointer text-white w-[14px] h-auto'
-                  onClick={() => handleRemoveCategory(c)}
-                />
-              </button>
-            ))}
-          </div>
+          <CategorySelect
+            categoriesToAdd={categoriesToAdd}
+            handleAddCategory={handleAddCategory}
+            handleRemoveCategory={handleRemoveCategory}
+          />
+           {errors && errors['categories'] && <p className="text-red-500">{`${errors['categories'].message}`}</p>}
+          
           {/* <p>Available {categoriesNotSelected.map(c => c.name).join(', ') || '-'}</p> */}
           <button disabled={isSubmitting} type="submit" className="mt-auto text-white font-[500] bg-blue-600 px-4 py-[6px] rounded ">
             Submit
           </button>
         </div>
-        <div {...getRootProps()} className="grid cursor-pointer"  >
-          <div className={`relative bg-stone-100 grid w-[250px] h-[250px] ${isDragActive? 'border-[3px] border-blue-700 border-dashed' : ''}`}>
-            <div className="absolute left-[42%] top-[25%] text-stone-300 font-bold text-[5rem]">+</div>
-            {preview &&
-            <AspectRatio ratio={1} className="flex place-content-center">
-              <img src={preview as string} alt="Upload preview" className="object-contain"/>
-            </AspectRatio >
-            }
-          </div>
-          {/* <input type="file" accept=".jpg, .png, .webp, .jfif" onChange={handleFileChange} /> */}
-          <div {...getRootProps()} className="">
-            <input {...getInputProps()}/>
-            <div className={`h-[50px] rounded bg-[rgb(255,_51,_51)] grid place-content-center`}>
-              <p className="text-white ">Choose File</p>
-            </div>
-          </div>
-        </div>
+        <ImageSelect setFiles={setFiles} setPreview={setPreview} preview={preview}/>
+        
       </div>
       
       
@@ -200,11 +139,74 @@ export function NewProductModal({formHook}) {
   )
 }
 
-export function CategorySelect ({categories, handleAddCategory}) {
+export function ImageSelect ({preview, setFiles, setPreview}) {
+  const onDrop = useCallback((acceptedFiles: Array<File>) => {
+    // preview image
+    const file = new FileReader;
+    file.onload = function() {
+      setPreview(file.result);
+    }
+    file.readAsDataURL(acceptedFiles[0]);
+
+    // change out stateFiles
+    setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
+  }, [])
+
+  const { acceptedFiles, getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'image/png': ['.jpg', '.png', '.webp', '.jfif']
+    }
+  });
+
+  return (
+    <div {...getRootProps()} className="grid cursor-pointer"  >
+      <div className={`relative bg-stone-100 grid w-[250px] h-[250px] ${isDragActive? 'border-[3px] border-blue-700 border-dashed' : ''}`}>
+        <div className="absolute left-[42%] top-[25%] text-stone-300 font-bold text-[5rem]">+</div>
+        {preview &&
+        <AspectRatio ratio={1} className="flex place-content-center">
+          <img src={preview as string} alt="Upload preview" className="object-contain"/>
+        </AspectRatio >
+        }
+      </div>
+      {/* <input type="file" accept=".jpg, .png, .webp, .jfif" onChange={handleFileChange} /> */}
+      <div {...getRootProps()} className="">
+        <input {...getInputProps()}/>
+        <div className={`h-[50px] rounded bg-[rgb(255,_51,_51)] grid place-content-center`}>
+          <p className="text-white ">Choose File</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function CategorySelect ({categoriesToAdd, handleAddCategory, handleRemoveCategory}) {
   const [open, setOpen]= useState(false);
   const [search, setSearch] = useState('');
   const commandRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  //
+  const {data, isFetching, error, isSuccess} = useGetCategoriesQuery();
+  const categoriesSorted = useMemo(() => {
+    console.log('SORT categories');
+    if(data){
+      return [...data.categories].sort((a, b) => a.name.localeCompare(b.name))
+    }
+    return []
+    
+  }, [data]);
+
+  const categoriesNotSelected = []
+  const categoriesSelected = []
+  categoriesSorted.map(c => {
+    if(categoriesToAdd.includes(c.id)){
+      categoriesSelected.push(c);
+    }else{
+      categoriesNotSelected.push(c);
+    }
+  })
+  //
 
   const handleCommandBlur = (event:any) => {
     if (!event.relatedTarget || (commandRef.current && !commandRef.current.contains(event.relatedTarget))) {
@@ -213,8 +215,6 @@ export function CategorySelect ({categories, handleAddCategory}) {
   };
 
   const handleSelect = (category: any) => {
-    // trigger this onClick and on pressing enter / submitting form ??
-    // console.log('SELECT', e)
     // setSearch(category.name);
     handleAddCategory(category);
     setOpen(false);
@@ -223,51 +223,63 @@ export function CategorySelect ({categories, handleAddCategory}) {
     }
   }
   
-  
 
   return (
-    <div className="max-w-[536px] ">
-      <Command className="border-2 border-neutral-400 relative z-50 overflow-visible" ref={commandRef}
-        onBlur={(e) => handleCommandBlur(e)}
-        // if we dont do this, and only leave onBlur on CommandInput, then 
-        // if we target CommandInput -> then target scrollbar on CommandList
-        // -> then target outside, then the last target wont trigger the
-        // onBlur of CommandInput, because it was unfocused 2 steps ago
-        // so we need this onBlur here too (we need both here an in CommmnadInput)
-      >
-        <div className="">
-          <CommandInput
-            value={search}
-            onValueChange={setSearch}
-            placeholder="Add Category"
-            onFocus={() => setOpen(true)}
-            ref={inputRef}
-            // onBlur={() => setOpen(false)}  // doesnt work because it doenst let onSelect run on CommandItem
-            onBlur={(e) => handleCommandBlur(e)}
-            className="text-[16px] py-0 h-8"
-          />
+    <>
+      <div className="max-w-[536px] ">
+        <Command className="border-2 border-neutral-400 relative z-50 overflow-visible" ref={commandRef}
+          onBlur={(e) => handleCommandBlur(e)}
+          // if we dont do this, and only leave onBlur on CommandInput, then 
+          // if we target CommandInput -> then target scrollbar on CommandList
+          // -> then target outside, then the last target wont trigger the
+          // onBlur of CommandInput, because it was unfocused 2 steps ago
+          // so we need this onBlur here too (we need both here an in CommmnadInput)
+          >
+          <div className="">
+            <CommandInput
+              value={search}
+              onValueChange={setSearch}
+              placeholder="Add Category"
+              onFocus={() => setOpen(true)}
+              ref={inputRef}
+              // onBlur={() => setOpen(false)}  // doesnt work because it doenst let onSelect run on CommandItem
+              onBlur={(e) => handleCommandBlur(e)}
+              className="text-[16px] py-0 h-8"
+              />
 
-        </div>
-        <CommandList className="absolute bg-white top-[40px]" hidden={!open}>
-          <CommandEmpty  className="text-[16px] px-[8px] py-[6px]">
-            No results found.
-          </CommandEmpty>
-          <CommandGroup heading={<p className="text-[14px]">Suggestions</p>} >
-            {categories &&
-              categories.map(c => (
-                <CommandItem
+          </div>
+          <CommandList className="absolute bg-white top-[40px]" hidden={!open}>
+            <CommandEmpty  className="text-[16px] px-[8px] py-[6px]">
+              No results found.
+            </CommandEmpty>
+            <CommandGroup heading={<p className="text-[14px]">Suggestions</p>} >
+              {categoriesNotSelected &&
+                categoriesNotSelected.map(c => (
+                  <CommandItem
                   onSelect={()=> handleSelect(c)}
                   key={c.id}
                   className="text-[16px] min-w-[250px]"
-                >
-                  {c.name}
-                </CommandItem>
-              ))}
-          </CommandGroup>
-          <CommandSeparator />
-        </CommandList>
-      </Command>
-      
-    </div>
+                  >
+                    {c.name}
+                  </CommandItem>
+                ))}
+            </CommandGroup>
+            <CommandSeparator />
+          </CommandList>
+        </Command>
+        
+      </div>
+      <div className= "space-x-2 space-y-[3px] grid justify-items-start">
+        {categoriesSelected.map(c => (
+          <button key={c.id} className="relative flex items-center rounded-md space-x-[3px] bg-neutral-800 text-neutral-100 pl-[9px] pr-[5px] py-[3px]">
+            <span>{c.name}</span>
+            <CloseSvg 
+              className='cursor-pointer text-white w-[14px] h-auto'
+              onClick={() => handleRemoveCategory(c)}
+            />
+          </button>
+        ))}
+      </div>
+    </>
   )
 }

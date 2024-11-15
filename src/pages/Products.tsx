@@ -45,7 +45,7 @@ export default function Products({showAdmin = false, query}) {
               showAdmin && 
               <>
                 <p>{p.visibility}</p>
-                <p>In: {p.categories.join(', ') || '-'}</p>
+                <p>In: {p.categories.map(c=> c.name).join(', ') || '-'}</p>
                 <div className="space-x-1">
                   <button
                     className="px-3 py-1 bg-red-500 rounded-md text-white"

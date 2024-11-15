@@ -1,8 +1,9 @@
 import {  useAddCategoryMutation } from "../../../store/api/apiSlice";
 import { TProductSchemaNoImage } from '@shared/dist/schemas'
 import Input from "../Input";
+import { UseFormReturn } from "react-hook-form";
 
-export function NewCategoryModal({formHook}) {
+export function NewCategoryModal({formHook} : {formHook: UseFormReturn}) {
 
   const {
     register,
