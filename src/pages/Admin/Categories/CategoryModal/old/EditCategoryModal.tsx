@@ -1,6 +1,6 @@
-import {  useEditCategoryMutation } from "../../../store/api/apiSlice";
+import {  useEditCategoryMutation } from "../../../../../store/api/apiSlice";
 import { categorySchema, TCategorySchema } from '@shared/dist/schemas'
-import Input from "../Input";
+import Input from "../../../Input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
