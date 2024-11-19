@@ -7,6 +7,7 @@ import { productSchemaNoImage, TProductSchemaNoImage } from '@shared/dist/schema
 import { z } from "zod";
 import Products from "../../Products";
 import { Spinner } from '@/components/Spinner';
+import ProductModalNew from './ProductModal/ProductModalNew';
 
 export default function ManageProducts() {
 
@@ -53,9 +54,10 @@ export default function ManageProducts() {
           <DialogTrigger className="text-white text-[1rem] font-[500] bg-blue-600 px-4 py-[6px] rounded">
             New +
           </DialogTrigger>
-          <DialogContent className="max-w-[780px]">
+          {/* <DialogContent className="max-w-[780px]">
             <NewProductModal formHook={formHook}/>
-          </DialogContent>
+          </DialogContent> */}
+          <ProductModalNew/>
         </Dialog>
       </div>
       <Products showAdmin={true} query={productsAdminQuery}/>  

@@ -28,6 +28,8 @@ export function CategoryModal({formHookReturn, onSubmit, name, resetOnClose = fa
   }, [])
 
   return (
+    // TODO change below so it doesn pass the reset, but instead the parent ocmponent uses the reset from the
+    // same form that it already has access to
       <form noValidate onSubmit={handleSubmit((data) => onSubmit(data, reset))}
         className="grid justify-center"
       >
