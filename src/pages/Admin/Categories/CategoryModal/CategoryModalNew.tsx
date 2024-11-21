@@ -21,7 +21,9 @@ export default function CategoryModalNew() {
     }, categorySchema))
   });
 
-  const onSubmit = async (body: TCategorySchema, reset: () => void) => {
+  const { reset } = formHookReturn;
+  
+  const onSubmit = async (body: TCategorySchema) => {
     // Note, in RTK Query calls, using uwrap() makes them throw err on failure.
     // Otherwise they dont throw and instead return a .data and .error properties
     try {

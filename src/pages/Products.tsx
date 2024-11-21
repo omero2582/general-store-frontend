@@ -4,6 +4,7 @@ import StarRatings from 'react-star-ratings';
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
 import { getPrice } from "@/lib/utils";
+import ProductModalEdit from "./Admin/Products/ProductModal/ProductModalEdit";
 
 export default function Products({showAdmin = false, query}) {
   const [deleteDocument, resDeleteDocument] = useDeleteProductMutation();
@@ -62,6 +63,12 @@ export default function Products({showAdmin = false, query}) {
                   >
                     Edit
                   </button> */}
+                  <Dialog>
+                  <DialogTrigger className="px-3 py-1 bg-neutral-800 rounded-md text-white">
+                    Edit
+                  </DialogTrigger>
+                  <ProductModalEdit product={p}/>
+                </Dialog>
                 </div>
                 {p?.createdBy && <p>created by: {p.createdBy?.username} ({p.createdBy?.userLevel})</p>}
               </>

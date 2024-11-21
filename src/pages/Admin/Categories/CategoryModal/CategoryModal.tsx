@@ -6,7 +6,7 @@ import { useEffect } from "react";
 
 type CategoryModalProps = {
   formHookReturn: UseFormReturn<any>,
-  onSubmit: (body: TCategorySchema, reset: () => void)  => void,
+  onSubmit: (body: TCategorySchema)  => void,
   name: string,
   resetOnClose?: boolean,
 }
@@ -30,7 +30,7 @@ export function CategoryModal({formHookReturn, onSubmit, name, resetOnClose = fa
   return (
     // TODO change below so it doesn pass the reset, but instead the parent ocmponent uses the reset from the
     // same form that it already has access to
-      <form noValidate onSubmit={handleSubmit((data) => onSubmit(data, reset))}
+      <form noValidate onSubmit={handleSubmit(onSubmit)}
         className="grid justify-center"
       >
         <h2 className="text-[18px] font-[500]">{name}</h2>

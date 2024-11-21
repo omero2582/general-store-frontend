@@ -10,14 +10,13 @@ import { useController, UseFormReturn } from "react-hook-form";
 
 type ProductModalProps = {
   formHookReturn: UseFormReturn<any>
-  product?: object,
   name: string,
   onSubmit: (body:any) => void,
   fileData: any,
   setFileData: any
 }
 
-export function ProductModal({formHookReturn, product, name, onSubmit, fileData, setFileData} : ProductModalProps) {
+export function ProductModal({formHookReturn, name, onSubmit, fileData, setFileData} : ProductModalProps) {
   
   // Form setup
   const { 
@@ -109,21 +108,27 @@ export function ImageSelect ({fileData, setFileData}) {
   //   // change out stateFiles
   //   setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
   // }, [])
-
+  const fileLimit = 1;
   const onDrop = useCallback((acceptedFiles: Array<File>) => {
     console.log('ACCEPTED',acceptedFiles)
     acceptedFiles.forEach((file, index) => {
-      console.log('INDEX', index)
       const fileReader = new FileReader();
       fileReader.onload = function () {
-        setFileData((prevFileData) => [
-          ...prevFileData,
-          {
-            file,
-            preview: fileReader.result,
-            order: prevFileData.length + 1, // Ensure correct order across multiple drops
-          },
-        ]);
+        setFileData((prevFileData) => {
+          const nextOrderNum = prevFileData.length + 1; // Ensure correct order across multiple drops
+          if(nextOrderNum > fileLimit){
+            console.log(`Adding this file ${nextOrderNum} would exceed the limit, so dont add it`)
+            return prevFileData
+          }
+          return [
+            ...prevFileData,
+            {
+              file,
+              preview: fileReader.result,
+              order: nextOrderNum, 
+            },
+          ]
+        });
       };
       fileReader.readAsDataURL(file);
     });
@@ -136,10 +141,19 @@ export function ImageSelect ({fileData, setFileData}) {
       'image/png': ['.jpg', '.png', '.webp', '.jfif']
     },
     // maxSize: would also need this in cloudinary/backend
-    maxFiles: 4,  // TODO this is ONLY max files dropped AT A SINGLE TIME, AKA considerd as 'accepted' by dropzone
+    maxFiles: fileLimit,  // TODO this is ONLY max files dropped AT A SINGLE TIME, AKA considerd as 'accepted' by dropzone
     // Dropzone 'acceptedFiles' reset every time the file input is opened.
     // This is not MAX TOTAL files to be added in our state, that needs to be limited another way
   });
+
+  const removeFile = (orderNum: number) => {
+    setFileData(prevFileData => {
+      const removed = prevFileData.filter(f => f.order !== orderNum);
+      const sorted = [...removed].sort((a, b) => a.order - b.order);
+      const ordered = sorted.map((img, index) => ({...img, order: index + 1}))
+      return ordered;
+    })
+  }
 
   return (
     <div {...getRootProps()} className="grid cursor-pointer"  >
@@ -148,11 +162,18 @@ export function ImageSelect ({fileData, setFileData}) {
         {fileData[0]?.preview &&
         <AspectRatio ratio={1} className="flex place-content-center">
           <img src={fileData[0]?.preview as string} alt="Upload preview" className="object-contain"/>
+          <CloseSvg
+            className="absolute bg-red-600 hover:bg-red-500 text-white w-10 h-10 right-0"
+            onClick={(e) => {
+              e.stopPropagation(); 
+              removeFile(1)
+            }}
+          />
         </AspectRatio >
         }
       </div>
       {/* <input type="file" accept=".jpg, .png, .webp, .jfif" onChange={handleFileChange} /> */}
-      <div {...getRootProps()} className="">
+      <div className="">
         <input {...getInputProps()}/>
         <div className={`h-[50px] rounded bg-[rgb(255,_51,_51)] grid place-content-center`}>
           <p className="text-white ">Choose File</p>

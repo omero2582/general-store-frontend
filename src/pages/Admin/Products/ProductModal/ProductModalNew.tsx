@@ -20,7 +20,6 @@ export default function ProductModalNew() {
       return out;
     }, productSchemaNoImage)),
     defaultValues: {
-      // FOR EDIT MODAL categories: product?.categories?.map(c => c.id) || [],
       categories:  [], 
     }
   });
@@ -32,19 +31,9 @@ export default function ProductModalNew() {
     file: File;
     preview: string | ArrayBuffer | null;
     order: number;
+    imageId?: string;
   }
-  const [fileData, setFileData] = useState<FileData[]>(() => {
-    // if(product){
-    //   console.log('Loading product images')
-    //   return product.images.map(i => {
-    //    const {url, publicId, order} = i;
-    //    return {file: undefined, preview: i.url, order} 
-    //   })
-    // }
-    // TODO above is for EDIT MODAL
-    
-    return [];
-  });
+  const [fileData, setFileData] = useState<FileData[]>([]);
   
   
   const {reset} = formHookReturn;
@@ -57,10 +46,13 @@ export default function ProductModalNew() {
    const onSubmit = async (body: TProductSchemaNoImage) => {
      console.log('SUBMIT', body);
  
+    //  const fileLimit = 1;
+    //  const filesToSubmit = fileData.slice(0, fileLimit);
      if (!fileData[0]?.file) { 
+    // if (!filesToSubmit[0]?.file) { 
        alert("Please add an image file");
        return;
-     }
+    }
  
      // Note, in RTK Query calls, using uwrap() makes them throw err on failure.
      // Otherwise they dont throw and instead return a .data and .error properties
@@ -70,19 +62,42 @@ export default function ProductModalNew() {
  
        // 2- Add file to 2nd request direct image upload
        const {cloudname, options} = resultPresignedUrl;
-       const formData = new FormData();
-       formData.append('file', fileData[0].file);
-       // Add to this req, the same options we used in the backend to presign the url
-       Object.entries(options).forEach(([key, value]) => {
-         formData.append(key, value);
-       });
- 
-       const resultUploadFile = await addProductUploadImage(formData).unwrap();
+
+       //
+       const filesToUploadToCloudinary : FileData[] = [];
+       const filesAlreadyUploadedBefore : FileData[] = [];
+       fileData.forEach(f => {
+        if('url' in f){
+          filesAlreadyUploadedBefore.push(f)
+        }else{
+          filesToUploadToCloudinary.push(f)
+        }
+      })
        
-       // 3- save document to DB including the files we uploaded in step 2
-       const {public_id} = resultUploadFile;
+
+      const filesUploaded = filesToUploadToCloudinary.map(async (f) => {
+        const formData = new FormData();
+        formData.append('file', f.file);
+        // Add to this req, the same options we used in the backend to presign the url
+        Object.entries(options).forEach(([key, value]) => {
+          formData.append(key, value);
+        });
+  
+        const resultUploadFile = await addProductUploadImage(formData).unwrap();
+        // 3- save document to DB including the files we uploaded in step 2
+        const {public_id} = resultUploadFile;
+        return {
+          // ...f, dont need this (file and preview)
+          order: f.order,
+          imageId: public_id,
+        }
+      })
+       
+       const combinedImages = [...filesUploaded, ...filesAlreadyUploadedBefore ]
+
        await addProductSaveToDB({
-         ...body, images: [{order: 1, imageId: public_id}]
+        //  ...body, images: [{order: 1, imageId: public_id}]
+        ...body, images: combinedImages
        }).unwrap();
        
        reset(); // clear inputs
