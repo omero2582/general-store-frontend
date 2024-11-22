@@ -96,8 +96,20 @@ export const apiSlice = createApi({
         url: `/products/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: [
-        { type: 'Products', id: 'LIST' }
+      invalidatesTags: (result, error, id) => [
+        { type: 'Products', id: 'LIST' },
+        { type: 'Products', id }
+      ],
+    }),
+    editProduct: builder.mutation({
+      query: ({body, id}) => ({
+        url: `/products/${id}`,
+        method: 'PATCH',
+        body,
+      }),
+      invalidatesTags: (result, error, {body, id}) => [
+        { type: 'Products', id: 'LIST' },
+        { type: 'Products', id }
       ],
     }),
 
@@ -239,6 +251,7 @@ export const {
   useAddProductUploadImageMutation,
   useAddProductPresignedUrlMutation,
   useDeleteProductMutation,
+  useEditProductMutation,
   // cart
   useGetCartQuery,
   useAddCartProductMutation,

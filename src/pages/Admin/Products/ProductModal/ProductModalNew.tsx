@@ -31,7 +31,7 @@ export default function ProductModalNew() {
     file: File;
     preview: string | ArrayBuffer | null;
     order: number;
-    imageId?: string;
+    publicId?: string;
   }
   const [fileData, setFileData] = useState<FileData[]>([]);
   
@@ -73,9 +73,11 @@ export default function ProductModalNew() {
           filesToUploadToCloudinary.push(f)
         }
       })
+
+      console.log('FILES TO UPOAD TO CLOUDINARY', filesToUploadToCloudinary);
        
 
-      const filesUploaded = filesToUploadToCloudinary.map(async (f) => {
+      const filesUploaded = await Promise.all(filesToUploadToCloudinary.map(async (f) => {
         const formData = new FormData();
         formData.append('file', f.file);
         // Add to this req, the same options we used in the backend to presign the url
@@ -89,14 +91,15 @@ export default function ProductModalNew() {
         return {
           // ...f, dont need this (file and preview)
           order: f.order,
-          imageId: public_id,
+          publicId: public_id,
         }
-      })
+      }))
        
        const combinedImages = [...filesUploaded, ...filesAlreadyUploadedBefore ]
+       console.log('COMBINED IMAGES', combinedImages);
 
        await addProductSaveToDB({
-        //  ...body, images: [{order: 1, imageId: public_id}]
+        //  ...body, images: [{order: 1, publicId: public_id}]
         ...body, images: combinedImages
        }).unwrap();
        

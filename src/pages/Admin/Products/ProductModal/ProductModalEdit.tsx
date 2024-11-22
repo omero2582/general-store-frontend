@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from "zod"
 import { DialogContent } from '@/components/ui/dialog';
 import { Description, DialogTitle } from '@radix-ui/react-dialog';
-import { useAddProductPresignedUrlMutation, useAddProductSaveToDBMutation, useAddProductUploadImageMutation } from '@/store/api/apiSlice';
+import { useAddProductPresignedUrlMutation, useAddProductSaveToDBMutation, useAddProductUploadImageMutation, useEditProductMutation } from '@/store/api/apiSlice';
 
 export default function ProductModalEdit({product}) {
   const formHookReturn = useForm<TProductSchemaNoImage>({
@@ -32,6 +32,7 @@ export default function ProductModalEdit({product}) {
     file: File;
     preview: string | ArrayBuffer | null;
     order: number;
+    publicId?: string;
   }
   const [fileData, setFileData] = useState<FileData[]>(() => {
     if(product){
@@ -51,16 +52,20 @@ export default function ProductModalEdit({product}) {
    // Submit Form
    const [addProductPresignedUrl, resAddProductPresignedUrl] = useAddProductPresignedUrlMutation();
    const [addProductUploadImage, resAddProductUploadImage] = useAddProductUploadImageMutation();
-   const [addProductSaveToDB, resAddProductSaveToDB] = useAddProductSaveToDBMutation();
+  //  const [addProductSaveToDB, resAddProductSaveToDB] = useAddProductSaveToDBMutation();
+  const [editProduct, resEditProduct] = useEditProductMutation();
  
 
    const onSubmit = async (body: TProductSchemaNoImage) => {
      console.log('SUBMIT', body);
  
+    //  const fileLimit = 1;
+    //  const filesToSubmit = fileData.slice(0, fileLimit);
      if (!fileData[0]?.file) { 
+    // if (!filesToSubmit[0]?.file) { 
        alert("Please add an image file");
        return;
-     }
+    }
  
      // Note, in RTK Query calls, using uwrap() makes them throw err on failure.
      // Otherwise they dont throw and instead return a .data and .error properties
@@ -70,20 +75,48 @@ export default function ProductModalEdit({product}) {
  
        // 2- Add file to 2nd request direct image upload
        const {cloudname, options} = resultPresignedUrl;
-       const formData = new FormData();
-       formData.append('file', fileData[0].file);
-       // Add to this req, the same options we used in the backend to presign the url
-       Object.entries(options).forEach(([key, value]) => {
-         formData.append(key, value);
-       });
- 
-       const resultUploadFile = await addProductUploadImage(formData).unwrap();
+
+       //
+       const filesToUploadToCloudinary : FileData[] = [];
+       const filesAlreadyUploadedBefore : FileData[] = [];
+       fileData.forEach(f => {
+        if('url' in f){
+          filesAlreadyUploadedBefore.push(f)
+        }else{
+          filesToUploadToCloudinary.push(f)
+        }
+      })
+
+      console.log('FILES TO UPOAD TO CLOUDINARY', filesToUploadToCloudinary);
        
-       // 3- save document to DB including the files we uploaded in step 2
-       const {public_id} = resultUploadFile;
-       await addProductSaveToDB({
-         ...body, images: [{order: 1, imageId: public_id}]
-       }).unwrap();
+
+      const filesUploaded = await Promise.all(filesToUploadToCloudinary.map(async (f) => {
+        const formData = new FormData();
+        formData.append('file', f.file);
+        // Add to this req, the same options we used in the backend to presign the url
+        Object.entries(options).forEach(([key, value]) => {
+          formData.append(key, value);
+        });
+  
+        const resultUploadFile = await addProductUploadImage(formData).unwrap();
+        // 3- save document to DB including the files we uploaded in step 2
+        const {public_id} = resultUploadFile;
+        return {
+          // ...f, dont need this (file and preview)
+          order: f.order,
+          publicId: public_id,
+        }
+      }))
+       
+       const combinedImages = [...filesUploaded, ...filesAlreadyUploadedBefore ]
+       console.log('COMBINED IMAGES', combinedImages);
+
+       await editProduct({
+        body: {
+          ...body, images: combinedImages
+        },
+        id: product.id,
+      }).unwrap();
        
        reset(); // clear inputs
        setFileData([])
