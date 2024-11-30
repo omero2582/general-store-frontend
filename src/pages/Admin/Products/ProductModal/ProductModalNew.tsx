@@ -38,18 +38,15 @@ export default function ProductModalNew() {
   
   const {reset} = formHookReturn;
    // Submit Form
-   const [addProductPresignedUrl, resAddProductPresignedUrl] = useAddProductPresignedUrlMutation();
-   const [addProductUploadImage, resAddProductUploadImage] = useAddProductUploadImageMutation();
-   const [addProductSaveToDB, resAddProductSaveToDB] = useAddProductSaveToDBMutation();
+   const [addProductPresignedUrl] = useAddProductPresignedUrlMutation();
+   const [addProductUploadImage] = useAddProductUploadImageMutation();
+   const [addProductSaveToDB] = useAddProductSaveToDBMutation();
  
 
    const onSubmit = async (body: TProductSchemaNoImage) => {
      console.log('SUBMIT', body);
  
-    //  const fileLimit = 1;
-    //  const filesToSubmit = fileData.slice(0, fileLimit);
      if (!fileData[0]?.file) { 
-    // if (!filesToSubmit[0]?.file) { 
        alert("Please add an image file");
        return;
     }
@@ -58,7 +55,7 @@ export default function ProductModalNew() {
      // Otherwise they dont throw and instead return a .data and .error properties
      try {
        // 1- presignedUrl
-       const resultPresignedUrl = await addProductPresignedUrl(body).unwrap();
+       const resultPresignedUrl = await addProductPresignedUrl({body}).unwrap();
  
        // 2- Add file to 2nd request direct image upload
        const {cloudname, options} = resultPresignedUrl;
@@ -85,7 +82,7 @@ export default function ProductModalNew() {
           formData.append(key, value);
         });
   
-        const resultUploadFile = await addProductUploadImage(formData).unwrap();
+        const resultUploadFile = await addProductUploadImage({body: formData}).unwrap();
         // 3- save document to DB including the files we uploaded in step 2
         const {public_id} = resultUploadFile;
         return {
@@ -95,17 +92,18 @@ export default function ProductModalNew() {
         }
       }))
        
-       const combinedImages = [...filesUploaded, ...filesAlreadyUploadedBefore ]
-       console.log('COMBINED IMAGES', combinedImages);
+        const combinedImages = [...filesUploaded, ...filesAlreadyUploadedBefore ]
+        console.log('COMBINED IMAGES', combinedImages);
 
-       await addProductSaveToDB({
-        //  ...body, images: [{order: 1, publicId: public_id}]
-        ...body, images: combinedImages
-       }).unwrap();
+        await addProductSaveToDB({
+         body: {
+          ...body, images: combinedImages
+          }
+        }).unwrap();
        
-       reset(); // clear inputs
-       setFileData([])
-       // refetch(); // dont need this, we simply invalidate the products call on that enpoint def
+        reset(); // clear inputs
+        setFileData([])
+        // refetch(); // dont need this, we simply invalidate the products call on that enpoint def
      }catch(err){
        console.log('err catch in new product submit', err);
      }

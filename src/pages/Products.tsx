@@ -1,5 +1,5 @@
 import { AspectRatio } from "@radix-ui/react-aspect-ratio";
-import { useDeleteProductMutation, useGetProductsAdminQuery, useGetProductsQuery } from "../store/api/apiSlice";
+import { useAddOrEditProductRatingMutation, useDeleteProductMutation, useGetProductsAdminQuery, useGetProductsQuery } from "../store/api/apiSlice";
 import StarRatings from 'react-star-ratings';
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
@@ -8,8 +8,12 @@ import ProductModalEdit from "./Admin/Products/ProductModal/ProductModalEdit";
 
 export default function Products({showAdmin = false, query}) {
   const [deleteDocument, resDeleteDocument] = useDeleteProductMutation();
+  const [addOrEditProductRating] = useAddOrEditProductRatingMutation();
   const {data, refetch} = query;
-  
+
+  const handleChangeRating = (newRating: number, id) => {
+    addOrEditProductRating({id, body: {rating: newRating}});
+  }
   return (
 
       <div className=" grid justify-center mx-auto gap-4 max-w-[1920px] grid-cols-[repeat(auto-fit,_minmax(0,_250px))]">
@@ -36,7 +40,7 @@ export default function Products({showAdmin = false, query}) {
                   starRatedColor='#E78A2E'
                   // starEmptyColor='#acb9d2'
                   starHoverColor='blue'
-                  changeRating={(newRating: number) => console.log('CHANGE', newRating)}
+                  changeRating={(newRating: number) => handleChangeRating(newRating, p.id)}
               />
               <span>({new Intl.NumberFormat('en').format(p.numRatings)})</span>
             </div>
@@ -50,7 +54,7 @@ export default function Products({showAdmin = false, query}) {
                 <div className="space-x-1">
                   <button
                     className="px-3 py-1 bg-red-500 rounded-md text-white"
-                    onClick={() => deleteDocument(p.id)}
+                    onClick={() => deleteDocument({id: p.id})}
                     // TODO, how to display success/error when successfully deleted?
                     // would probably end up using an errorSlice redux state, and on every
                     // mutation, if error it would set the error

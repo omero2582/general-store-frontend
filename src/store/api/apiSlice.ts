@@ -34,8 +34,8 @@ export const apiSlice = createApi({
 
     // products
     getProduct: builder.query({
-      query: (id) => `/products/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Products', id }],
+      query: ({id}) => `/products/${id}`,
+      providesTags: (result, error, {id}) => [{ type: 'Products', id }],
     }),
     getProducts: builder.query({
       query: () => '/products',
@@ -68,21 +68,21 @@ export const apiSlice = createApi({
           : [{ type: 'Products', id: 'LIST' }, 'Users'],
     }),
     addProductPresignedUrl: builder.mutation({
-      query: (body) => ({
+      query: ({ body }) => ({
         url: `/products/upload-presigned`,
         method: 'POST',
         body
       }),
     }),
     addProductUploadImage: builder.mutation({
-      query: (body) => ({
+      query: ({ body }) => ({
         url: `https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`,
         method: 'POST',
         body,
       }),
     }),
     addProductSaveToDB: builder.mutation({
-      query: (body) => ({
+      query: ({ body }) => ({
         url: `/products`,
         method: 'POST',
         body,
@@ -92,7 +92,7 @@ export const apiSlice = createApi({
       ],
     }),
     deleteProduct: builder.mutation({
-      query: (id) => ({
+      query: ({ id }) => ({
         url: `/products/${id}`,
         method: 'DELETE',
       }),
@@ -112,6 +112,31 @@ export const apiSlice = createApi({
         { type: 'Products', id }
       ],
     }),
+
+    //  ratings
+    addOrEditProductRating: builder.mutation({
+      query: ({body, id}) => ({
+        url: `/products/${id}/my-rating`,
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Products', id: 'LIST' },
+        { type: 'Products', id }
+      ],
+    }),
+    deleteProductRating: builder.mutation({
+      query: ({id}) => ({
+        url: `/products/${id}/my-rating`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Products', id: 'LIST' },
+        { type: 'Products', id }
+      ],
+    }),
+
+    //
 
     // cart
     // ?? think about current approach
@@ -157,7 +182,7 @@ export const apiSlice = createApi({
     }),
 
     addCartProduct: builder.mutation({
-      query: (body) => ({
+      query: ({ body }) => ({
         url: `/cart`,
         method: 'POST',
         body
@@ -168,7 +193,7 @@ export const apiSlice = createApi({
     }),
 
     editCartProduct: builder.mutation({
-      query: (body) => ({
+      query: ({body}) => ({
         url: `/cart`,
         method: 'PATCH',
         body
@@ -179,7 +204,7 @@ export const apiSlice = createApi({
     }),
 
     deleteCartProduct: builder.mutation({
-      query: (id) => ({
+      query: ({ id }) => ({
         url: `/cart/${id}`,
         method: 'DELETE',
       }),
@@ -197,7 +222,7 @@ export const apiSlice = createApi({
     }),
 
     addCategory: builder.mutation({
-      query: (body) => ({
+      query: ({body}) => ({
         url: `/categories`,
         method: 'POST',
         body
@@ -219,7 +244,7 @@ export const apiSlice = createApi({
     }),
 
     deleteCategory: builder.mutation({
-      query: (id) => ({
+      query: ({id}) => ({
         url: `/categories/${id}`,
         method: 'DELETE',
       }),
@@ -227,6 +252,33 @@ export const apiSlice = createApi({
         { type: 'Categories', id: 'LIST' }
       ],
     }),
+
+    // users
+    changeUserLevel: builder.mutation({
+      query: ({body}) => ({
+        url: `/users/level`,
+        method: 'POST',
+        body
+      }),
+      invalidatesTags: [
+        'Users'
+      ],
+    }),
+
+    //auth
+    logoutGoogle: builder.mutation({
+      query: () => ({
+        url: '/auth/logout',
+        method: 'POST',
+      }),
+      invalidatesTags: [
+        'Users'
+      ],
+    }),
+    me: builder.query({
+      query: () => '/auth/me'
+    }),
+
 
     //
 
@@ -252,6 +304,9 @@ export const {
   useAddProductPresignedUrlMutation,
   useDeleteProductMutation,
   useEditProductMutation,
+  // ratings
+  useAddOrEditProductRatingMutation,
+  useDeleteProductRatingMutation,
   // cart
   useGetCartQuery,
   useAddCartProductMutation,
@@ -262,6 +317,11 @@ export const {
   useAddCategoryMutation,
   useDeleteCategoryMutation,
   useEditCategoryMutation,
+
+  //users
+  useChangeUserLevelMutation,
+  useLogoutGoogleMutation,
+  useMeQuery,
 } = apiSlice;
 
 export default apiSlice.reducer;

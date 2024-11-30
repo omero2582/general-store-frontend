@@ -1,4 +1,4 @@
-import { useMeQuery } from "@/store/api/authSlice";
+import { useMeQuery } from "@/store/api/apiSlice";
 import { useAppSelector } from "@/store/store";
 import { formatDistance, formatDistanceToNowStrict } from "date-fns";
 

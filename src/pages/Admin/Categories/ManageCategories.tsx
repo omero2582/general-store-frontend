@@ -61,7 +61,7 @@ export default function ManageCategories() {
                 </Dialog>
                 <button
                   className="text-[0.95rem] px-[12px] py-[4px] bg-red-500 rounded-md text-gray-50"
-                  onClick={() => deleteCategory(c.id)}
+                  onClick={() => deleteCategory({id: c.id})}
                   >
                   Delete
                 </button>

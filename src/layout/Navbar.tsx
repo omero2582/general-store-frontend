@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useLogoutGoogleMutation, useMeQuery } from '@/store/api/authSlice';
+import { useLogoutGoogleMutation, useMeQuery } from '@/store/api/apiSlice';
 import { useGetCartQuery } from '@/store/api/apiSlice'
 import {
   Avatar,

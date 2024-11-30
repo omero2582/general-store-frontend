@@ -27,7 +27,7 @@ export default function CategoryModalNew() {
     // Note, in RTK Query calls, using uwrap() makes them throw err on failure.
     // Otherwise they dont throw and instead return a .data and .error properties
     try {
-      await addCategory(body).unwrap();
+      await addCategory({body}).unwrap();
       reset(); // clear inputs
       // refetch(); // dont need this, we simply invalidate the category call on that enpoint def
     }catch(err){

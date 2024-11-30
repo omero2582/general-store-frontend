@@ -32,11 +32,11 @@ export default function CartItem({item}) {
         <p>{getPrice(price)}</p>
         <NumberInput className={'mt-1 mb-[2px]'} value={quantityState} setValue={setQuantityState} isDisabled={resEditCartProduct.isLoading}/>
         <div className='space-x-3'>
-          <button disabled={resEditCartProduct.isLoading} onClick={() => deleteCartProduct(id) }  className="disabled:no-underline disabled:text-stone-400 hover:underline text-blue-700 font-medium">
+          <button disabled={resEditCartProduct.isLoading} onClick={() => deleteCartProduct({id}) }  className="disabled:no-underline disabled:text-stone-400 hover:underline text-blue-700 font-medium">
            Remove
           </button>
           {quantity !== quantityState &&
-          <button disabled={resEditCartProduct.isLoading} onClick={() => editCartProduct({productId: id, quantity: quantityState})} className="disabled:no-underline disabled:text-stone-400 hover:underline text-blue-700 font-medium">
+          <button disabled={resEditCartProduct.isLoading} onClick={() => editCartProduct({ body: {productId: id, quantity: quantityState} })} className="disabled:no-underline disabled:text-stone-400 hover:underline text-blue-700 font-medium">
             Submit
           </button>
           }

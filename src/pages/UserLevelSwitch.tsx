@@ -1,7 +1,7 @@
 import { Spinner } from '@/components/Spinner';
 import { useToast } from '@/hooks/use-toast';
-import { useMeQuery } from '@/store/api/authSlice';
-import { useChangeUserLevelMutation } from '@/store/api/userSlice';
+import { useMeQuery } from '@/store/api/apiSlice';
+import { useChangeUserLevelMutation } from '@/store/api/apiSlice';
 import { useAppSelector } from '@/store/store';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { changeUserLevelSchema, TChangeUserLevelSchema } from '@shared/dist/schemas';
@@ -56,7 +56,7 @@ export default function UserLevelSwitch() {
   const onSubmit = async (body: TChangeUserLevelSchema) => {
     console.log('SUBMIT', body);
 
-    const result = await changeUserLevel(body);
+    const result = await changeUserLevel({body});
     if(result.error){
       console.error(result.error);
       return

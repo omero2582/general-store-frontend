@@ -1,7 +1,7 @@
 import { AspectRatio } from "@/components/AspectRatio";
 import NumberInput from "@/components/NumberInput/NumberInput";
 import { getPrice } from "@/lib/utils";
-import { useAddCartProductMutation, useGetProductQuery } from "@/store/api/apiSlice"
+import { useAddCartProductMutation, useAddOrEditProductRatingMutation, useDeleteProductRatingMutation, useGetProductQuery } from "@/store/api/apiSlice"
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import StarRatings from 'react-star-ratings';
@@ -11,16 +11,12 @@ export default function ProductDetail() {
 
   const [quantityBuy, setQuantityBuy] = useState(1);
 
-  // const addToCart = async () => {
-  //   setIsSucessAdded(false);
-  //   await handleAdd(item, value);
-  //   setIsSucessAdded(true);
-  // }
-
   const { id } = useParams();
-  const {data, isLoading, isError} = useGetProductQuery(id);
+  const {data, isLoading, isError} = useGetProductQuery({id});
 
-  const [addCartProduct, resAddCartProduct] = useAddCartProductMutation();
+  const [addCartProduct] = useAddCartProductMutation();
+  const [addOrEditProductRating] = useAddOrEditProductRatingMutation();
+  const [deleteProductRating] = useDeleteProductRatingMutation();
 
   if(isLoading){
     return (
@@ -36,7 +32,12 @@ export default function ProductDetail() {
 
   console.log(data)
   const {name, description, price, averageRating, numRatings, images} = data?.product || {}
-// const averageRating = 4.7
+  // const averageRating = 4.7
+
+  const handleChangeRating = (newRating: number) => {
+    addOrEditProductRating({id, body: {rating: newRating}});
+  }
+
   return (
     <div className=" mt-8 grid sm:grid-flow-col gap-x-[24px] justify-center justify-items-center">
       <div className="w-[250px] h-[250px] bg-stone-100 mb-[10px]">
@@ -59,14 +60,14 @@ export default function ProductDetail() {
                     starRatedColor='#E78A2E'
                     // starEmptyColor='#acb9d2'
                     starHoverColor='blue'
-                    changeRating={(newRating: number) => console.log('CHANGE', newRating)}
+                    changeRating={handleChangeRating}
                 />
               </div>
               <span>{new Intl.NumberFormat('en').format(numRatings)} ratings</span>
             </div>
         <NumberInput value={quantityBuy} setValue={setQuantityBuy}/>
         <button
-          onClick={() => addCartProduct({productId: id, quantity: quantityBuy})}
+          onClick={() => addCartProduct({ body: {productId: id, quantity: quantityBuy}})}
           className="w-[117px] h-[36px] bg-yellow-400"
         >
           Add to Cart

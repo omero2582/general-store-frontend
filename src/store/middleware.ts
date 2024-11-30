@@ -3,6 +3,10 @@ import { Middleware, MiddlewareAPI } from "@reduxjs/toolkit";
 import { isRejectedWithValue, isFulfilled, isPending } from '@reduxjs/toolkit'
 import { toast } from '@/hooks/use-toast';
 
+const formatErrorName = (name) => {
+  return name.replace(/([a-z])([A-Z])/g, '$1 $2');
+}
+
 export const fetchMiddleware: Middleware = 
   (storeAPI: MiddlewareAPI) => (next) => (action) => {
   // // Check if the action has opted out of middleware using a custom flag
@@ -29,7 +33,7 @@ export const fetchMiddleware: Middleware =
     console.log('Fetch failed', action);
     dispatch(setUser(action.payload.data?.user))
     toast({
-      title: action.payload.data?.name || 'Error',
+      title: formatErrorName(action.payload.data?.name|| 'Error') ,
       description: action.payload.data?.message,
       variant: "destructive",
     });

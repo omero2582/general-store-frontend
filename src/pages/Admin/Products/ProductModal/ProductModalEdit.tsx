@@ -26,6 +26,7 @@ export default function ProductModalEdit({product}) {
   });
 
   
+  
   //TODO TODO - maybe everythingbelow  should be redux state instead
   // Files State  
   type FileData = {
@@ -34,53 +35,49 @@ export default function ProductModalEdit({product}) {
     order: number;
     publicId?: string;
   }
-  const [fileData, setFileData] = useState<FileData[]>(() => {
+  const getStartingProductImages = () => {
     if(product){
       console.log('Loading product images')
       return product.images.map(i => {
        const {url, publicId, order} = i;
-       return {file: undefined, preview: i.url, order} 
+       return {file: undefined, preview: i.url, order, publicId, url} 
       })
-    }
-    // TODO above is for EDIT MODAL
-    
+    }    
     return [];
-  });
+  }
+  const [fileData, setFileData] = useState<FileData[]>(getStartingProductImages);
   
   
   const {reset} = formHookReturn;
-   // Submit Form
-   const [addProductPresignedUrl, resAddProductPresignedUrl] = useAddProductPresignedUrlMutation();
-   const [addProductUploadImage, resAddProductUploadImage] = useAddProductUploadImageMutation();
-  //  const [addProductSaveToDB, resAddProductSaveToDB] = useAddProductSaveToDBMutation();
-  const [editProduct, resEditProduct] = useEditProductMutation();
+  // Submit Form
+  const [addProductPresignedUrl] = useAddProductPresignedUrlMutation();
+  const [addProductUploadImage] = useAddProductUploadImageMutation();
+  const [editProduct] = useEditProductMutation();
  
 
-   const onSubmit = async (body: TProductSchemaNoImage) => {
-     console.log('SUBMIT', body);
- 
-    //  const fileLimit = 1;
-    //  const filesToSubmit = fileData.slice(0, fileLimit);
-     if (!fileData[0]?.file) { 
-    // if (!filesToSubmit[0]?.file) { 
-       alert("Please add an image file");
-       return;
+  const onSubmit = async (body: TProductSchemaNoImage) => {
+    console.log('SUBMIT', body);
+
+    //  if (!fileData[0]?.file) { 
+    if (fileData.length < 1) { 
+      alert("Please add an image file");
+      return;
     }
- 
-     // Note, in RTK Query calls, using uwrap() makes them throw err on failure.
-     // Otherwise they dont throw and instead return a .data and .error properties
-     try {
-       // 1- presignedUrl
-       const resultPresignedUrl = await addProductPresignedUrl(body).unwrap();
- 
-       // 2- Add file to 2nd request direct image upload
-       const {cloudname, options} = resultPresignedUrl;
 
-       //
-       const filesToUploadToCloudinary : FileData[] = [];
-       const filesAlreadyUploadedBefore : FileData[] = [];
-       fileData.forEach(f => {
-        if('url' in f){
+    // Note, in RTK Query calls, using uwrap() makes them throw err on failure.
+    // Otherwise they dont throw and instead return a .data and .error properties
+    try {
+      // 1- presignedUrl
+      const resultPresignedUrl = await addProductPresignedUrl({body}).unwrap();
+
+      // 2- Add file to 2nd request direct image upload
+      const {cloudname, options} = resultPresignedUrl;
+
+      //
+      const filesToUploadToCloudinary : FileData[] = [];
+      const filesAlreadyUploadedBefore : FileData[] = [];
+      fileData.forEach(f => {
+        if('publicId' in f){
           filesAlreadyUploadedBefore.push(f)
         }else{
           filesToUploadToCloudinary.push(f)
@@ -88,7 +85,7 @@ export default function ProductModalEdit({product}) {
       })
 
       console.log('FILES TO UPOAD TO CLOUDINARY', filesToUploadToCloudinary);
-       
+        
 
       const filesUploaded = await Promise.all(filesToUploadToCloudinary.map(async (f) => {
         const formData = new FormData();
@@ -97,8 +94,8 @@ export default function ProductModalEdit({product}) {
         Object.entries(options).forEach(([key, value]) => {
           formData.append(key, value);
         });
-  
-        const resultUploadFile = await addProductUploadImage(formData).unwrap();
+
+        const resultUploadFile = await addProductUploadImage({body: formData}).unwrap();
         // 3- save document to DB including the files we uploaded in step 2
         const {public_id} = resultUploadFile;
         return {
@@ -107,24 +104,34 @@ export default function ProductModalEdit({product}) {
           publicId: public_id,
         }
       }))
-       
-       const combinedImages = [...filesUploaded, ...filesAlreadyUploadedBefore ]
-       console.log('COMBINED IMAGES', combinedImages);
+        
+      const combinedImages = [...filesUploaded, ...filesAlreadyUploadedBefore ]
+      console.log('COMBINED IMAGES', combinedImages);
 
-       await editProduct({
+      await editProduct({
         body: {
           ...body, images: combinedImages
         },
         id: product.id,
       }).unwrap();
-       
-       reset(); // clear inputs
-       setFileData([])
-       // refetch(); // dont need this, we simply invalidate the products call on that enpoint def
-     }catch(err){
-       console.log('err catch in new product submit', err);
-     }
-   }
+      
+      reset(); // clear inputs
+      setFileData([])
+      // refetch(); // dont need this, we simply invalidate the products call on that enpoint def
+    }catch(err){
+      console.log('err catch in new product submit', err);
+    }
+  }
+
+  const resetToClearInputs = () => {
+    reset(); // clear inputs
+    setFileData([])
+  }
+
+  const resetToStartingInputs = () => {
+    reset();
+    setFileData(getStartingProductImages)
+  }
 
 
   return (
@@ -137,7 +144,7 @@ export default function ProductModalEdit({product}) {
         name={'Edit Product'}
         fileData={fileData}
         setFileData={setFileData}
-        
+        fnResetOnClose={resetToStartingInputs}
       />
     </DialogContent>
   )

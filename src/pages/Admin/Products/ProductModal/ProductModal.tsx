@@ -1,12 +1,11 @@
-import { useCallback, useMemo, useRef, useState } from "react";
-import {  useAddProductPresignedUrlMutation, useAddProductUploadImageMutation, useAddProductSaveToDBMutation, useDeleteProductMutation, useGetCategoriesQuery } from "@/store/api/apiSlice";
-import { TProductSchemaNoImage } from '@shared/dist/schemas'
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {  useGetCategoriesQuery } from "@/store/api/apiSlice";
 import Input from "../../Input";
 import {useDropzone} from 'react-dropzone'
 import { AspectRatio } from "@/components/AspectRatio";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command";
 import CloseSvg from '@/assets/close2.svg?react';
-import { useController, UseFormReturn } from "react-hook-form";
+import { UseFormReturn } from "react-hook-form";
 
 type ProductModalProps = {
   formHookReturn: UseFormReturn<any>
@@ -14,10 +13,19 @@ type ProductModalProps = {
   onSubmit: (body:any) => void,
   fileData: any,
   setFileData: any
+  fnResetOnClose?: () => void
 }
 
-export function ProductModal({formHookReturn, name, onSubmit, fileData, setFileData} : ProductModalProps) {
+export function ProductModal({formHookReturn, name, onSubmit, fileData, setFileData, fnResetOnClose} : ProductModalProps) {
   
+  useEffect(() => {
+    return () => {
+      if(fnResetOnClose){
+        fnResetOnClose();
+      }
+    }
+  }, [])
+
   // Form setup
   const { 
     register, getValues, handleSubmit, formState: {errors, isSubmitting}, reset, setError, watch, control, setValue
