@@ -9,23 +9,22 @@ export default function ManageCategories() {
   
   
   
-  const {data, isFetching, error} = useGetCategoriesQuery(undefined);
-  // const [editCategory, resEditCategory] = useEditCategoryMutation();
+  const {data, isLoading, error} = useGetCategoriesQuery(undefined);
   const [deleteCategory] = useDeleteCategoryMutation();
 
+  
+  if(isLoading){
+    return (
+      <Spinner className='mt-[10px] text-neutral-700 w-[60px] h-auto'/>
+    )
+  }
+  
   if(error){
     const {user, ...rest} = error?.data || {}
     return (
       <pre>{JSON.stringify({...rest}, null, 2)}</pre>
     )
   }
-
-  if(isFetching){
-    return (
-      <Spinner className='mt-[10px] text-neutral-700 w-[60px] h-auto'/>
-    )
-  }
-
 
   return (
     <>

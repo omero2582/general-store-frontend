@@ -1,5 +1,6 @@
 import { AspectRatio } from "@/components/AspectRatio";
 import NumberInput from "@/components/NumberInput/NumberInput";
+import { Spinner } from "@/components/Spinner";
 import { getPrice } from "@/lib/utils";
 import { useAddCartProductMutation, useAddOrEditProductRatingMutation, useDeleteProductRatingMutation, useGetProductQuery } from "@/store/api/apiSlice"
 import { useState } from "react";
@@ -12,23 +13,25 @@ export default function ProductDetail() {
   const [quantityBuy, setQuantityBuy] = useState(1);
 
   const { id } = useParams();
-  const {data, isLoading, isError} = useGetProductQuery({id});
+  const {data, isLoading, error} = useGetProductQuery({id});
 
-  const [addCartProduct] = useAddCartProductMutation();
+  const [addCartProduct, resAddCartProduct] = useAddCartProductMutation();
   const [addOrEditProductRating] = useAddOrEditProductRatingMutation();
   const [deleteProductRating] = useDeleteProductRatingMutation();
 
   if(isLoading){
     return (
-      <>Loading...</>
+      <Spinner className='mt-[10px] text-neutral-700 w-[60px] h-auto'/>
     )
   }
 
-  if(isError){
+  if(error){
+    const {user, ...rest} = error?.data || {}
     return (
-      <>Error</>
+      <pre>{JSON.stringify({...rest}, null, 2)}</pre>
     )
   }
+
 
   console.log(data)
   const {name, description, price, averageRating, numRatings, images} = data?.product || {}
@@ -67,10 +70,14 @@ export default function ProductDetail() {
             </div>
         <NumberInput value={quantityBuy} setValue={setQuantityBuy}/>
         <button
+          disabled={resAddCartProduct.isLoading}
           onClick={() => addCartProduct({ body: {productId: id, quantity: quantityBuy}})}
-          className="w-[117px] h-[36px] bg-yellow-400"
+          className="w-[117px] h-[36px] bg-yellow-400 rounded  disabled:bg-yellow-200"
         >
-          Add to Cart
+          {resAddCartProduct.isLoading ?
+            <Spinner className='w-auto h-auto'/> 
+            : 'Add to Cart'
+          }
         </button>
         <div className="mt-[10px]">
             <p className="font-[700] text-[1.1rem]">Product Description</p>

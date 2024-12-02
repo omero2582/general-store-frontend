@@ -26,6 +26,5 @@ from the JSX. Some SVGs might need their contents inside the file
 changed to 'fill=currentColor'
 
 TO SOLVE:
-edit route
 google image rate limits
 support multiple images frontend (backend support this)

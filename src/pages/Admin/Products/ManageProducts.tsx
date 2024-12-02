@@ -28,24 +28,22 @@ export default function ManageProducts() {
   // the adminProductQUery or the non-admin one based on 'showAdmin'
   // The only problem with that, is that I still want the hook here so that I can
   // conditionally render the entire component differently depending on error like I do below
-  const productsAdminQuery = useGetProductsAdminQuery(undefined, {
-    refetchOnMountOrArgChange: 20,
-  });
+  const productsAdminQuery = useGetProductsAdminQuery();
   
-  const {error, data, isFetching} = productsAdminQuery;
+  const {error, data, isLoading} = productsAdminQuery;
+  
+  if(isLoading){
+    return (
+      <Spinner className='mt-[10px] text-neutral-700 w-[60px] h-auto'/>
+    )
+  }
+  
   if(error){
     const {user, ...rest} = error?.data || {}
     return (
       <pre>{JSON.stringify({...rest}, null, 2)}</pre>
     )
   }
-
-  if(isFetching){
-    return (
-      <Spinner className='mt-[10px] text-neutral-700 w-[60px] h-auto'/>
-    )
-  }
-
   return (
     <>
       <div className="grid grid-flow-col justify-start gap-4 items-end">

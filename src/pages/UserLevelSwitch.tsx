@@ -105,9 +105,6 @@ export default function UserLevelSwitch() {
         </div>
         {/**px-5 py-2 */}
         {!user && !isLoading &&
-          // <button onClick={() => signin} type='button' className={` bg-emerald-700 hover:bg-emerald-600 w-[106px] h-[46px] text-white rounded text-[20px] tracking-wide`}>
-          //   Sign In
-          // </button>
           <a 
             href='/api/auth/google'
             className='bg-slate-900 text-neutral-100 py-[3px] px-4 rounded border-[2px] border-slate-400 font-[500] tracking-wide text-[18px] hover:bg-slate-800 h-full grid items-center'
@@ -116,7 +113,9 @@ export default function UserLevelSwitch() {
           </a>
         }
         {user && 
-          <button disabled={resChangeUserLevel.isLoading} className={` disabled:bg-emerald-800 bg-emerald-700 hover:bg-emerald-600 w-[106px] h-[46px] text-white rounded text-[20px] tracking-wide`}>
+          <button disabled={resChangeUserLevel.isLoading}
+            className={` disabled:bg-emerald-800 bg-emerald-700 hover:bg-emerald-600 w-[106px] h-[46px] text-white rounded text-[20px] tracking-wide`}
+          >
             {resChangeUserLevel.isLoading?
             <Spinner className='text-neutral-100'/>
             :'Submit'}

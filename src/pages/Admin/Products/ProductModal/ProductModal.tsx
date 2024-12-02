@@ -6,6 +6,7 @@ import { AspectRatio } from "@/components/AspectRatio";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command";
 import CloseSvg from '@/assets/close2.svg?react';
 import { UseFormReturn } from "react-hook-form";
+import { Spinner } from "@/components/Spinner";
 
 type ProductModalProps = {
   formHookReturn: UseFormReturn<any>
@@ -91,8 +92,12 @@ export function ProductModal({formHookReturn, name, onSubmit, fileData, setFileD
            {errors && errors['categories'] && <p className="text-red-500">{`${errors['categories'].message}`}</p>}
           
           {/* <p>Available {categoriesNotSelected.map(c => c.name).join(', ') || '-'}</p> */}
-          <button disabled={isSubmitting} type="submit" className="mt-auto text-white font-[500] bg-blue-600 px-4 py-[6px] rounded ">
-            Submit
+          <button disabled={isSubmitting} type="submit"
+            className=" w-[83px] px-4 py-[6px] text-white font-[500] bg-blue-600 disabled:bg-blue-500  rounded "
+          >
+            {isSubmitting ? 
+            <Spinner className='text-white w-auto h-auto'/> 
+            : 'Submit'}
           </button>
         </div>
         <ImageSelect fileData={fileData} setFileData={setFileData}/>

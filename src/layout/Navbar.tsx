@@ -24,8 +24,6 @@ export function Navbar() {
   const [logout, resLogout] = useLogoutGoogleMutation();
 
   const cartQuery = useGetCartQuery(undefined, {
-    // refetchOnMountOrArgChange: 20, // similar to Tansatck Query staleTime
-    /// not sure if I should have above uncommented here
     skip: !user
   });
 
@@ -91,10 +89,10 @@ export function Navbar() {
           </DropdownMenu>
           </>
           : isLoading?
-          <div className='bg-stone-300 h-[45px] w-[45px] rounded-full'></div>
+          <div className='mx-2 self-center bg-stone-300 h-[45px] w-[45px] rounded-full'></div>
           :<a 
             href='/api/auth/google'
-            className='py-[3px] px-4 rounded border-[2px] border-slate-400 font-[500] tracking-wide text-[18px] hover:bg-slate-800 h-full grid items-center'
+            className='self-center py-[3px] px-4 rounded border-[2px] border-slate-400 font-[500] tracking-wide text-[18px] hover:bg-slate-800 grid items-center'
           >
             Sign In
           </a>

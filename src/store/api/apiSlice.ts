@@ -21,11 +21,27 @@ import { setUser } from "../slices/userSlice";
 //   };
 // };
 
+
+// RTK Query note:
+// Invalidating queries can only solve the problem of: 'If I performed an action,
+// then refetch this other thing.' However, invalidating queries has nothing to do with
+// 'When should any user refetch this query, considering other users might change the backend data.'
+// That problem can only be solved by things like 'refetchOnMountOrArgChange', or 'keepUnusedDataFor'
+// refetchOnMountOrArgChange = staleTime in Tanstack Query
+// keepUnusedDataFor = after this unmounts, start counting X seconds. If we remount before X seconds,
+// then use the prev cached data, otherwise re-fetch. We almost never want this.
+
 // TODO add option to each query so they can individually opt into
 // using mock fetch, apart from our .env variable
 // for ex 'query: (body, isUseMock) =>
 const cloudname = import.meta.env.VITE_CLOUDINARY_NAME;
 export const apiSlice = createApi({
+  refetchOnMountOrArgChange: 20, //similar to Tanstack Query staleTime
+  // I can either enable it here, or speicifcally on every
+  // hook call. Its nice here but there are times when I would want to opt out of it
+  // SO not sure, I am just deciding the default herre
+  // keepUnusedDataFor <- defaults to 60s = time the data will remain in the cache, 
+  // after last component referencing it umounts. Also available per endpoint
   reducerPath: 'productsApi',
   baseQuery: fetchBaseQuery({baseUrl: '/api'}),
   // baseQuery: customBaseQuery('/api'),
@@ -54,8 +70,6 @@ export const apiSlice = createApi({
               { type: 'Products', id: 'LIST' },
             ]
           : [{ type: 'Products', id: 'LIST' }],
-          // keepUnusedDataFor <- defaults to 60s = time the data will remain in the cache, 
-        // after last component referencing it umounts. Also available per endpoint
     }),
     getProductsAdmin: builder.query({
       query: () => '/products/admin',
@@ -136,40 +150,7 @@ export const apiSlice = createApi({
       ],
     }),
 
-    //
-
-    // cart
-    // ?? think about current approach
-    // Remmeber RTK Query's cache tags are not used for cache storage, they are
-    // just used to decide which queries will be invalidated by a mutation
-    // In scenario below, I want to invalidate the cart whenever the cart is changed,
-    // or whenevera product is changed by an admin in the frontend???
-    // HMMMMMMM
-    // wait now that I think about it...
-    // if admin changes a product, and regular user has cart opened, then 
-    // they will never see this change....................
-    // I think scratch my code below and instead refetch the whole cart everytime???
-
-    // but what about PRODUCTS endpoints above ????
-    // doenst it also run into the same exact problem??
-    // if an admin changes a product, and user has window opened, the will
-    // never see this change because their query will never be invalidated
-    // HMMMMMMMMMMMMMMMMMMMMMMMMM have to re-read some of the RKT Query stuff.... 
-    
-    // TODO new. Now that I think about it, invalidating queries can only
-    // solve the problem of: 'If I performed an action, then refetch this other thing.'
-    // However, invalidating queries has nothing to do with 'When should any user
-    // refetch this query, considering other users might change the backend data.'
-    // That problem can only be solved by things like 'refetchOnMount', or 'keepUnusedDataFor'
-    // I think ideally, we just refetch on mount and probably remove the product tags
-    // We can keep the Cart tags though because these will always only be changed by the same user
-    // Although they could change them from different clients, but thats ok at least they know they data is out of sync
-    // if they kept the other window opened. refetchOnMount would maybe solve that
-    // But ofc I would much prefer to have Tanstack Query's staleTime here.
-    // For now maybe just keep these tags, so that managing the cart in the cart page
-    // will trigger more cart fetches, but consider adding refetchOnMount and taking out productTags
-    // TODO new, also adding to above: it seems like refetchOnMount can take a
-    // number argument, which makes it behave similar to tanstack Query staleTime
+    //cart
     getCart: builder.query({
       query: () => `/cart`,
       providesTags: (result) =>
@@ -260,9 +241,7 @@ export const apiSlice = createApi({
         method: 'POST',
         body
       }),
-      invalidatesTags: [
-        'Users'
-      ],
+      invalidatesTags: ['Users'],
     }),
 
     //auth
@@ -271,12 +250,11 @@ export const apiSlice = createApi({
         url: '/auth/logout',
         method: 'POST',
       }),
-      invalidatesTags: [
-        'Users'
-      ],
+      invalidatesTags: ['Users'],
     }),
     me: builder.query({
-      query: () => '/auth/me'
+      query: () => '/auth/me',
+      providesTags: ['Users']
     }),
 
 
