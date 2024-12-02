@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
 import { getPrice } from "@/lib/utils";
 import ProductModalEdit from "./Admin/Products/ProductModal/ProductModalEdit";
+import { useState } from "react";
 
 export default function Products({showAdmin = false, query}) {
   const [deleteDocument, resDeleteDocument] = useDeleteProductMutation();
@@ -14,6 +15,7 @@ export default function Products({showAdmin = false, query}) {
   const handleChangeRating = (newRating: number, id) => {
     addOrEditProductRating({id, body: {rating: newRating}});
   }
+
   return (
 
       <div className=" grid justify-center mx-auto gap-4 max-w-[1920px] grid-cols-[repeat(auto-fit,_minmax(0,_250px))]">
@@ -60,19 +62,13 @@ export default function Products({showAdmin = false, query}) {
                     // mutation, if error it would set the error
                   >
                     Delete
-                  </button>
-                  {/* <button
-                    className="px-3 py-1 bg-neutral-800 rounded-md text-white"
-                    onClick={() => console.log('EDIT')}
-                  >
-                    Edit
-                  </button> */}
-                  <Dialog>
-                  <DialogTrigger className="px-3 py-1 bg-neutral-800 rounded-md text-white">
-                    Edit
-                  </DialogTrigger>
-                  <ProductModalEdit product={p}/>
-                </Dialog>
+                  </button>                 
+                  <ProductModalEdit product={p}>
+                    <DialogTrigger className="px-3 py-1 bg-neutral-800 rounded-md text-white">
+                      Edit
+                    </DialogTrigger>
+                  </ProductModalEdit>
+                  
                 </div>
                 {p?.createdBy && <p>created by: {p.createdBy?.username} ({p.createdBy?.userLevel})</p>}
               </>

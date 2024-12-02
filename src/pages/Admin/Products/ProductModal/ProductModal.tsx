@@ -29,7 +29,7 @@ export function ProductModal({formHookReturn, name, onSubmit, fileData, setFileD
 
   // Form setup
   const { 
-    register, getValues, handleSubmit, formState: {errors, isSubmitting}, reset, setError, watch, control, setValue
+    register, getValues, handleSubmit, formState: {errors, isSubmitting, isDirty}, reset, setError, watch, control, setValue
   } = formHookReturn;
   // Moved useForm() call outside of this component, and now it comes as props,
   // Otherwise the state of the form would be cleared on as soon as modal closes.
@@ -39,12 +39,12 @@ export function ProductModal({formHookReturn, name, onSubmit, fileData, setFileD
 
   const handleAddCategory = (category) => {
     const updatedCategories = [...categoriesToAdd, category.id];
-    setValue('categories', updatedCategories);
+    setValue('categories', updatedCategories, {shouldDirty: true});
   }
 
   const handleRemoveCategory = (c) => {
     const updatedCategories = categoriesToAdd.filter(cat => cat !== c.id);
-    setValue('categories', updatedCategories);
+    setValue('categories', updatedCategories, {shouldDirty: true});
   }
 
   
@@ -92,7 +92,7 @@ export function ProductModal({formHookReturn, name, onSubmit, fileData, setFileD
            {errors && errors['categories'] && <p className="text-red-500">{`${errors['categories'].message}`}</p>}
           
           {/* <p>Available {categoriesNotSelected.map(c => c.name).join(', ') || '-'}</p> */}
-          <button disabled={isSubmitting} type="submit"
+          <button disabled={!isDirty || isSubmitting} type="submit"
             className=" w-[83px] px-4 py-[6px] text-white font-[500] bg-blue-600 disabled:bg-blue-500  rounded "
           >
             {isSubmitting ? 
@@ -287,7 +287,7 @@ export function CategorySelect ({categoriesToAdd, handleAddCategory, handleRemov
       </div>
       <div className= "space-x-2 space-y-[3px] grid justify-items-start">
         {categoriesSelected.map(c => (
-          <button key={c.id} className="relative flex items-center rounded-md space-x-[3px] bg-neutral-800 text-neutral-100 pl-[9px] pr-[5px] py-[3px]">
+          <button type="button" key={c.id} className="relative flex items-center rounded-md space-x-[3px] bg-neutral-800 text-neutral-100 pl-[9px] pr-[5px] py-[3px]">
             <span>{c.name}</span>
             <CloseSvg 
               className='cursor-pointer text-white w-[14px] h-auto'

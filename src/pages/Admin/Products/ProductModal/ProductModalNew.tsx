@@ -4,11 +4,12 @@ import { productSchemaNoImage, TProductSchemaNoImage } from '@shared/dist/schema
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from "zod"
-import { DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Description, DialogTitle } from '@radix-ui/react-dialog';
 import { useAddProductPresignedUrlMutation, useAddProductSaveToDBMutation, useAddProductUploadImageMutation } from '@/store/api/apiSlice';
 
-export default function ProductModalNew() {
+export default function ProductModalNew({children}) {
+  const [open, setOpen] = useState(false);
   const formHookReturn = useForm<TProductSchemaNoImage>({
     // resolver: zodResolver(productSchemaNoImage)
     resolver: zodResolver(z.preprocess((data) => {
@@ -103,6 +104,7 @@ export default function ProductModalNew() {
        
         reset(); // clear inputs
         setFileData([])
+        setOpen(false);
         // refetch(); // dont need this, we simply invalidate the products call on that enpoint def
      }catch(err){
        console.log('err catch in new product submit', err);
@@ -111,17 +113,20 @@ export default function ProductModalNew() {
 
 
   return (
-    <DialogContent className="max-w-[780px]">
-      <DialogTitle className="sr-only">New Product</DialogTitle>
-      <Description className="sr-only">{`Create New Product`}</Description>
-      <ProductModal
-        formHookReturn={formHookReturn}
-        onSubmit={onSubmit}
-        name={'New Product'}
-        fileData={fileData}
-        setFileData={setFileData}
-        
-      />
-    </DialogContent>
+    <Dialog onOpenChange={setOpen} open={open}>
+      {children}
+      <DialogContent className="max-w-[780px]">
+        <DialogTitle className="sr-only">New Product</DialogTitle>
+        <Description className="sr-only">{`Create New Product`}</Description>
+        <ProductModal
+          formHookReturn={formHookReturn}
+          onSubmit={onSubmit}
+          name={'New Product'}
+          fileData={fileData}
+          setFileData={setFileData}
+          
+        />
+      </DialogContent>
+    </Dialog>
   )
 }

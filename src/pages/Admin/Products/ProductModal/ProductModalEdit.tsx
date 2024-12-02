@@ -1,14 +1,15 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ProductModal } from './ProductModal'
 import { productSchemaNoImage, TProductSchemaNoImage } from '@shared/dist/schemas';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from "zod"
-import { DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Description, DialogTitle } from '@radix-ui/react-dialog';
 import { useAddProductPresignedUrlMutation, useAddProductSaveToDBMutation, useAddProductUploadImageMutation, useEditProductMutation } from '@/store/api/apiSlice';
 
-export default function ProductModalEdit({product}) {
+export default function ProductModalEdit({product, children}) {
+  const [open, setOpen] = useState(false);
   const formHookReturn = useForm<TProductSchemaNoImage>({
     // resolver: zodResolver(productSchemaNoImage)
     resolver: zodResolver(z.preprocess((data) => {
@@ -54,7 +55,6 @@ export default function ProductModalEdit({product}) {
   const [addProductUploadImage] = useAddProductUploadImageMutation();
   const [editProduct] = useEditProductMutation();
  
-
   const onSubmit = async (body: TProductSchemaNoImage) => {
     console.log('SUBMIT', body);
 
@@ -115,8 +115,12 @@ export default function ProductModalEdit({product}) {
         id: product.id,
       }).unwrap();
       
-      reset(); // clear inputs
-      setFileData([])
+      // reset();
+      // setFileData(getStartingProductImages)
+      // dont need above anymore, since we are just using the useEffect that triggers anytime product changes
+      // The only time our new approach would be 'worse' is if we submit a product, and for some reason
+      // the products array returned from our db are the same. but in that case we woudltn need reset anyways -_-
+      setOpen(false);
       // refetch(); // dont need this, we simply invalidate the products call on that enpoint def
     }catch(err){
       console.log('err catch in new product submit', err);
@@ -124,7 +128,7 @@ export default function ProductModalEdit({product}) {
   }
 
   const resetToClearInputs = () => {
-    reset(); // clear inputs
+    reset();
     setFileData([])
   }
 
@@ -133,19 +137,40 @@ export default function ProductModalEdit({product}) {
     setFileData(getStartingProductImages)
   }
 
+  // resets to new data based on products state change. Not sure why react-hook-form
+  // doesnt automatically do this out of the box
+  useEffect(() => {
+    reset({
+      ...product,
+      categories: product?.categories?.map(c => c.id) || []
+    });
+    setFileData(getStartingProductImages)
+  }, [product]);
+
+  // TODO, maybe change all above to be a useEffect based on isSubmitSuccessful ??
+  // not sure if that would work since we would still need to wait for the api response..
+  // We should at least change this ^^^^ on the NewProductModal then, not Edit
+  // https://youtu.be/qmCLBjyPwVk?si=r0y8V9-yFJm2GauV&t=404
+
+  /// jk, using 'isSubmitSuccessful' doesnt work since our new vals depend on product, so just keep above
+  // useEffect which resets when the product prop changes 👍
+
 
   return (
-    <DialogContent className="max-w-[780px]">
-      <DialogTitle className="sr-only">Edit Product</DialogTitle>
-      <Description className="sr-only">{`Edit Product`}</Description>
-      <ProductModal
-        formHookReturn={formHookReturn}
-        onSubmit={onSubmit}
-        name={'Edit Product'}
-        fileData={fileData}
-        setFileData={setFileData}
-        fnResetOnClose={resetToStartingInputs}
-      />
-    </DialogContent>
+    <Dialog onOpenChange={setOpen} open={open}>
+      {children}
+      <DialogContent className="max-w-[780px]">
+        <DialogTitle className="sr-only">Edit Product</DialogTitle>
+        <Description className="sr-only">{`Edit Product`}</Description>
+        <ProductModal
+          formHookReturn={formHookReturn}
+          onSubmit={onSubmit}
+          name={'Edit Product'}
+          fileData={fileData}
+          setFileData={setFileData}
+          fnResetOnClose={resetToStartingInputs}
+        />
+      </DialogContent>
+    </Dialog>
   )
 }

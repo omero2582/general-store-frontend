@@ -8,6 +8,7 @@ import { z } from "zod";
 import Products from "../../Products";
 import { Spinner } from '@/components/Spinner';
 import ProductModalNew from './ProductModal/ProductModalNew';
+import { useState } from 'react';
 
 export default function ManageProducts() {
 
@@ -48,15 +49,11 @@ export default function ManageProducts() {
     <>
       <div className="grid grid-flow-col justify-start gap-4 items-end">
         <h2 className="text-[22px] font-[500]">My Products</h2>
-        <Dialog>
-          <DialogTrigger className="text-white text-[1rem] font-[500] bg-blue-600 px-4 py-[6px] rounded">
-            New +
-          </DialogTrigger>
-          {/* <DialogContent className="max-w-[780px]">
-            <NewProductModal formHook={formHook}/>
-          </DialogContent> */}
-          <ProductModalNew/>
-        </Dialog>
+          <ProductModalNew>
+            <DialogTrigger className="text-white text-[1rem] font-[500] bg-blue-600 px-4 py-[6px] rounded">
+              New +
+            </DialogTrigger>
+          </ProductModalNew>
       </div>
       <Products showAdmin={true} query={productsAdminQuery}/>  
     </>
