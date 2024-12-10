@@ -8,9 +8,20 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Description, DialogTitle } from '@radix-ui/react-dialog';
 import { useAddProductPresignedUrlMutation, useAddProductSaveToDBMutation, useAddProductUploadImageMutation } from '@/store/api/apiSlice';
 
+type FileData = {
+  file: File;
+  preview: string | ArrayBuffer | null;
+  order: number;
+  publicId?: string;
+}
+
+type TProductSchemaFE = TProductSchemaNoImage & {
+  fileData : FileData[],
+}
+
 export default function ProductModalNew({children}) {
   const [open, setOpen] = useState(false);
-  const formHookReturn = useForm<TProductSchemaNoImage>({
+  const formHookReturn = useForm<TProductSchemaFE>({
     // resolver: zodResolver(productSchemaNoImage)
     resolver: zodResolver(z.preprocess((data) => {
       // removes empty input fields, which default to '' (empty string) on html
@@ -21,28 +32,19 @@ export default function ProductModalNew({children}) {
       return out;
     }, productSchemaNoImage)),
     defaultValues: {
-      categories:  [], 
+      categories:  [],
+      fileData: [],
     }
   });
-
-  
-  //TODO TODO - maybe everythingbelow  should be redux state instead
-  // Files State  
-  type FileData = {
-    file: File;
-    preview: string | ArrayBuffer | null;
-    order: number;
-    publicId?: string;
-  }
-  const [fileData, setFileData] = useState<FileData[]>([]);
   
   
-  const {reset} = formHookReturn;
+  const {reset, watch} = formHookReturn;
    // Submit Form
    const [addProductPresignedUrl] = useAddProductPresignedUrlMutation();
    const [addProductUploadImage] = useAddProductUploadImageMutation();
    const [addProductSaveToDB] = useAddProductSaveToDBMutation();
- 
+  
+   const fileData = watch('fileData');
 
    const onSubmit = async (body: TProductSchemaNoImage) => {
      console.log('SUBMIT', body);
@@ -103,7 +105,6 @@ export default function ProductModalNew({children}) {
         }).unwrap();
        
         reset(); // clear inputs
-        setFileData([])
         setOpen(false);
         // refetch(); // dont need this, we simply invalidate the products call on that enpoint def
      }catch(err){
@@ -122,9 +123,6 @@ export default function ProductModalNew({children}) {
           formHookReturn={formHookReturn}
           onSubmit={onSubmit}
           name={'New Product'}
-          fileData={fileData}
-          setFileData={setFileData}
-          
         />
       </DialogContent>
     </Dialog>

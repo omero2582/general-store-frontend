@@ -12,12 +12,10 @@ type ProductModalProps = {
   formHookReturn: UseFormReturn<any>
   name: string,
   onSubmit: (body:any) => void,
-  fileData: any,
-  setFileData: any
   fnResetOnClose?: () => void
 }
 
-export function ProductModal({formHookReturn, name, onSubmit, fileData, setFileData, fnResetOnClose} : ProductModalProps) {
+export function ProductModal({formHookReturn, name, onSubmit, fnResetOnClose} : ProductModalProps) {
   
   useEffect(() => {
     return () => {
@@ -47,9 +45,7 @@ export function ProductModal({formHookReturn, name, onSubmit, fileData, setFileD
     setValue('categories', updatedCategories, {shouldDirty: true});
   }
 
-  
 
-  console.log('fileData', fileData);
   // OK, I just figured out strategy:
   // - Run useState with a starter function, that when loading edit Products,
   // it maps through product.images to create its corresponding fileData starting state,
@@ -100,7 +96,7 @@ export function ProductModal({formHookReturn, name, onSubmit, fileData, setFileD
             : 'Submit'}
           </button>
         </div>
-        <ImageSelect fileData={fileData} setFileData={setFileData}/>
+        <ImageSelect setValue={setValue} watch={watch} getValues={getValues}/>
         
       </div>
       
@@ -109,43 +105,37 @@ export function ProductModal({formHookReturn, name, onSubmit, fileData, setFileD
   )
 }
 
-export function ImageSelect ({fileData, setFileData}) {
-  // const onDrop = useCallback((acceptedFiles: Array<File>) => {
-  //   // preview image
-  //   const fileReader = new FileReader;
-  //   fileReader.onload = function() {
-  //     setPreview(fileReader.result);
-  //   }
-  //   fileReader.readAsDataURL(acceptedFiles[0]);
-
-  //   // change out stateFiles
-  //   setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
-  // }, [])
+export function ImageSelect ({watch, setValue, getValues}) {
+  const fileData = watch('fileData');
+  console.log('fileData', fileData);
   const fileLimit = 1;
   const onDrop = useCallback((acceptedFiles: Array<File>) => {
     console.log('ACCEPTED',acceptedFiles)
     acceptedFiles.forEach((file, index) => {
       const fileReader = new FileReader();
       fileReader.onload = function () {
-        setFileData((prevFileData) => {
+        // setFileData((prevFileData) => {
+        const prevFileData = getValues('fileData');
+        console.log(fileData)
           const nextOrderNum = prevFileData.length + 1; // Ensure correct order across multiple drops
           if(nextOrderNum > fileLimit){
             console.log(`Adding this file ${nextOrderNum} would exceed the limit, so dont add it`)
             return prevFileData
           }
-          return [
+          // return [
+          setValue('fileData', [
             ...prevFileData,
             {
               file,
               preview: fileReader.result,
               order: nextOrderNum, 
             },
-          ]
-        });
+          ], {shouldDirty: true})
+        // });
       };
       fileReader.readAsDataURL(file);
     });
-  }, [])
+  }, [fileData])
   
 
   const { acceptedFiles, getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -154,18 +144,20 @@ export function ImageSelect ({fileData, setFileData}) {
       'image/png': ['.jpg', '.png', '.webp', '.jfif']
     },
     // maxSize: would also need this in cloudinary/backend
-    maxFiles: fileLimit,  // TODO this is ONLY max files dropped AT A SINGLE TIME, AKA considerd as 'accepted' by dropzone
+    maxFiles: 3,  // TODO this is ONLY max files dropped AT A SINGLE TIME, AKA considerd as 'accepted' by dropzone
     // Dropzone 'acceptedFiles' reset every time the file input is opened.
     // This is not MAX TOTAL files to be added in our state, that needs to be limited another way
   });
 
   const removeFile = (orderNum: number) => {
-    setFileData(prevFileData => {
+    const prevFileData = getValues('fileData');
+    // setFileData(prevFileData => {
       const removed = prevFileData.filter(f => f.order !== orderNum);
       const sorted = [...removed].sort((a, b) => a.order - b.order);
       const ordered = sorted.map((img, index) => ({...img, order: index + 1}))
-      return ordered;
-    })
+    //   return ordered;
+    // })
+    setValue('fileData', ordered, {shouldDirty: ordered.length > 0})
   }
 
   return (
@@ -231,7 +223,6 @@ export function CategorySelect ({categoriesToAdd, handleAddCategory, handleRemov
   };
 
   const handleSelect = (category: any) => {
-    // setSearch(category.name);
     handleAddCategory(category);
     setOpen(false);
     if(inputRef){

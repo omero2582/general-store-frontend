@@ -8,9 +8,32 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Description, DialogTitle } from '@radix-ui/react-dialog';
 import { useAddProductPresignedUrlMutation, useAddProductSaveToDBMutation, useAddProductUploadImageMutation, useEditProductMutation } from '@/store/api/apiSlice';
 
+type FileData = {
+  file: File;
+  preview: string | ArrayBuffer | null;
+  order: number;
+  publicId?: string;
+}
+
+type TProductSchemaFE = TProductSchemaNoImage & {
+  fileData : FileData[],
+}
+
 export default function ProductModalEdit({product, children}) {
+  const getStartingProductImages = () => {
+    if(product){
+      console.log('Loading product images')
+      return product.images.map(i => {
+        const {url, publicId, order} = i;
+        return {file: undefined, preview: i.url, order, publicId, url} 
+      })
+    }    
+    return [];
+  }
+  
+
   const [open, setOpen] = useState(false);
-  const formHookReturn = useForm<TProductSchemaNoImage>({
+  const formHookReturn = useForm<TProductSchemaFE>({
     // resolver: zodResolver(productSchemaNoImage)
     resolver: zodResolver(z.preprocess((data) => {
       // removes empty input fields, which default to '' (empty string) on html
@@ -22,34 +45,14 @@ export default function ProductModalEdit({product, children}) {
     }, productSchemaNoImage)),
     defaultValues: {
       ...product,
-      categories: product?.categories?.map(c => c.id) || [], 
+      categories: product?.categories?.map(c => c.id) || [],
+      fileData: getStartingProductImages(),
     }
   });
-
   
   
-  //TODO TODO - maybe everythingbelow  should be redux state instead
-  // Files State  
-  type FileData = {
-    file: File;
-    preview: string | ArrayBuffer | null;
-    order: number;
-    publicId?: string;
-  }
-  const getStartingProductImages = () => {
-    if(product){
-      console.log('Loading product images')
-      return product.images.map(i => {
-       const {url, publicId, order} = i;
-       return {file: undefined, preview: i.url, order, publicId, url} 
-      })
-    }    
-    return [];
-  }
-  const [fileData, setFileData] = useState<FileData[]>(getStartingProductImages);
-  
-  
-  const {reset} = formHookReturn;
+  const {reset, watch} = formHookReturn;
+  const fileData = watch('fileData');
   // Submit Form
   const [addProductPresignedUrl] = useAddProductPresignedUrlMutation();
   const [addProductUploadImage] = useAddProductUploadImageMutation();
@@ -115,11 +118,6 @@ export default function ProductModalEdit({product, children}) {
         id: product.id,
       }).unwrap();
       
-      // reset();
-      // setFileData(getStartingProductImages)
-      // dont need above anymore, since we are just using the useEffect that triggers anytime product changes
-      // The only time our new approach would be 'worse' is if we submit a product, and for some reason
-      // the products array returned from our db are the same. but in that case we woudltn need reset anyways -_-
       setOpen(false);
       // refetch(); // dont need this, we simply invalidate the products call on that enpoint def
     }catch(err){
@@ -127,34 +125,18 @@ export default function ProductModalEdit({product, children}) {
     }
   }
 
-  const resetToClearInputs = () => {
-    reset();
-    setFileData([])
-  }
-
   const resetToStartingInputs = () => {
     reset();
-    setFileData(getStartingProductImages)
   }
 
-  // resets to new data based on products state change. Not sure why react-hook-form
-  // doesnt automatically do this out of the box
+  // resets form to new data based on products state change
   useEffect(() => {
     reset({
       ...product,
-      categories: product?.categories?.map(c => c.id) || []
+      categories: product?.categories?.map(c => c.id) || [],
+      fileData: getStartingProductImages(),
     });
-    setFileData(getStartingProductImages)
   }, [product]);
-
-  // TODO, maybe change all above to be a useEffect based on isSubmitSuccessful ??
-  // not sure if that would work since we would still need to wait for the api response..
-  // We should at least change this ^^^^ on the NewProductModal then, not Edit
-  // https://youtu.be/qmCLBjyPwVk?si=r0y8V9-yFJm2GauV&t=404
-
-  /// jk, using 'isSubmitSuccessful' doesnt work since our new vals depend on product, so just keep above
-  // useEffect which resets when the product prop changes 👍
-
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
@@ -166,8 +148,6 @@ export default function ProductModalEdit({product, children}) {
           formHookReturn={formHookReturn}
           onSubmit={onSubmit}
           name={'Edit Product'}
-          fileData={fileData}
-          setFileData={setFileData}
           fnResetOnClose={resetToStartingInputs}
         />
       </DialogContent>

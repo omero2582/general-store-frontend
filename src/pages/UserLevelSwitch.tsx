@@ -27,14 +27,11 @@ export default function UserLevelSwitch() {
     register,
     handleSubmit,
     formState: {errors, isSubmitting},
-    reset,
-    setError,
-    getValues,
     watch,
     setValue,
   } = formHook;
 
-  const {userLevel} = watch()
+  const userLevel = watch('userLevel');
 
   useEffect(() => {
     if(user){

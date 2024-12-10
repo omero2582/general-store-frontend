@@ -59,7 +59,7 @@ export function Navbar() {
             <DropdownMenuTrigger className='hover:bg-slate-800 px-2'>
               {/* <img className=' cursor-pointer h-[45px] rounded-full' src={user.authProviders.google.profilePicture}/> */}
               <Avatar className='h-[45px] w-auto'>
-                <AvatarImage src={user.authProviders.google.profilePicture} />
+                <AvatarImage referrerPolicy='no-referrer' src={user.authProviders.google.profilePicture} />
                 <AvatarFallback className='h-[45px] w-[45px] bg-neutral-600'></AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
