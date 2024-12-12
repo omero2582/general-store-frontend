@@ -138,19 +138,21 @@ export default function ProductModalEdit({product, children}) {
     });
   }, [product]);
 
+
+  useEffect(() => {
+    if(open === false){
+      resetToStartingInputs();
+    }
+  }, [open])
+
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       {children}
-      <DialogContent className="max-w-[780px]">
-        <DialogTitle className="sr-only">Edit Product</DialogTitle>
-        <Description className="sr-only">{`Edit Product`}</Description>
-        <ProductModal
-          formHookReturn={formHookReturn}
-          onSubmit={onSubmit}
-          name={'Edit Product'}
-          fnResetOnClose={resetToStartingInputs}
-        />
-      </DialogContent>
+      <ProductModal
+        formHookReturn={formHookReturn}
+        onSubmit={onSubmit}
+        name={'Edit Product'}
+      />
     </Dialog>
   )
 }

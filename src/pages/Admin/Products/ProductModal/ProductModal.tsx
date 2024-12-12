@@ -7,6 +7,8 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import CloseSvg from '@/assets/close2.svg?react';
 import { UseFormReturn } from "react-hook-form";
 import { Spinner } from "@/components/Spinner";
+import { DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Description } from "@radix-ui/react-dialog";
 
 type ProductModalProps = {
   formHookReturn: UseFormReturn<any>
@@ -15,15 +17,8 @@ type ProductModalProps = {
   fnResetOnClose?: () => void
 }
 
-export function ProductModal({formHookReturn, name, onSubmit, fnResetOnClose} : ProductModalProps) {
+export function ProductModal({formHookReturn, name, onSubmit} : ProductModalProps) {
   
-  useEffect(() => {
-    return () => {
-      if(fnResetOnClose){
-        fnResetOnClose();
-      }
-    }
-  }, [])
 
   // Form setup
   const { 
@@ -56,10 +51,58 @@ export function ProductModal({formHookReturn, name, onSubmit, fnResetOnClose} : 
   // rest of the fileData. Make sure to use fileData and not the initial products.images for step 3
   // here bc if we move around image order, then that would be reflected in fileData ONLY
 
-  
- 
+  //
+ // DEC 10
+ //
+
+ const fileData = watch('fileData');
+console.log('fileData', fileData);
+const fileLimit = 1;
+const onDrop = useCallback((acceptedFiles: Array<File>) => {
+  console.log('ACCEPTED',acceptedFiles)
+  acceptedFiles.forEach((file, index) => {
+    const fileReader = new FileReader();
+    fileReader.onload = function () {
+      // setFileData((prevFileData) => {
+      const prevFileData = getValues('fileData');
+      console.log(fileData)
+        const nextOrderNum = prevFileData.length + 1; // Ensure correct order across multiple drops
+        if(nextOrderNum > fileLimit){
+          console.log(`Adding this file ${nextOrderNum} would exceed the limit, so dont add it`)
+          return prevFileData
+        }
+        // return [
+        setValue('fileData', [
+          ...prevFileData,
+          {
+            file,
+            preview: fileReader.result,
+            order: nextOrderNum, 
+          },
+        ], {shouldDirty: true})
+      // });
+    };
+    fileReader.readAsDataURL(file);
+  });
+}, [fileData])
+
+ const dropzoneReturn = useDropzone({
+  onDrop,
+  accept: {
+    'image/png': ['.jpg', '.png', '.webp', '.jfif']
+  },
+  // maxSize: would also need this in cloudinary/backend
+  maxFiles: 3,  // TODO this is ONLY max files dropped AT A SINGLE TIME, AKA considerd as 'accepted' by dropzone
+  // Dropzone 'acceptedFiles' reset every time the file input is opened.
+  // This is not MAX TOTAL files to be added in our state, that needs to be limited another way
+});
+
+const {getRootProps} = dropzoneReturn;
 
   return (
+  <DialogContent {...getRootProps()}  onClick={e => e.stopPropagation()} className="max-w-[780px]" >
+    <DialogTitle className="sr-only">{name}</DialogTitle>
+    <Description className="sr-only">{name}</Description>  
     <form noValidate onSubmit={handleSubmit(onSubmit)}
       className="grid justify-center"
     >
@@ -96,58 +139,22 @@ export function ProductModal({formHookReturn, name, onSubmit, fnResetOnClose} : 
             : 'Submit'}
           </button>
         </div>
-        <ImageSelect setValue={setValue} watch={watch} getValues={getValues}/>
+        <ImageSelect dropzoneReturn={dropzoneReturn} setValue={setValue} watch={watch} getValues={getValues}/>
         
       </div>
       
       
     </form>
+    </DialogContent>
   )
 }
 
-export function ImageSelect ({watch, setValue, getValues}) {
+export function ImageSelect ({watch, setValue, getValues, dropzoneReturn}) {
   const fileData = watch('fileData');
   console.log('fileData', fileData);
-  const fileLimit = 1;
-  const onDrop = useCallback((acceptedFiles: Array<File>) => {
-    console.log('ACCEPTED',acceptedFiles)
-    acceptedFiles.forEach((file, index) => {
-      const fileReader = new FileReader();
-      fileReader.onload = function () {
-        // setFileData((prevFileData) => {
-        const prevFileData = getValues('fileData');
-        console.log(fileData)
-          const nextOrderNum = prevFileData.length + 1; // Ensure correct order across multiple drops
-          if(nextOrderNum > fileLimit){
-            console.log(`Adding this file ${nextOrderNum} would exceed the limit, so dont add it`)
-            return prevFileData
-          }
-          // return [
-          setValue('fileData', [
-            ...prevFileData,
-            {
-              file,
-              preview: fileReader.result,
-              order: nextOrderNum, 
-            },
-          ], {shouldDirty: true})
-        // });
-      };
-      fileReader.readAsDataURL(file);
-    });
-  }, [fileData])
   
 
-  const { acceptedFiles, getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: {
-      'image/png': ['.jpg', '.png', '.webp', '.jfif']
-    },
-    // maxSize: would also need this in cloudinary/backend
-    maxFiles: 3,  // TODO this is ONLY max files dropped AT A SINGLE TIME, AKA considerd as 'accepted' by dropzone
-    // Dropzone 'acceptedFiles' reset every time the file input is opened.
-    // This is not MAX TOTAL files to be added in our state, that needs to be limited another way
-  });
+  const { acceptedFiles, getRootProps, getInputProps, isDragActive, open } = dropzoneReturn;
 
   const removeFile = (orderNum: number) => {
     const prevFileData = getValues('fileData');
@@ -161,14 +168,14 @@ export function ImageSelect ({watch, setValue, getValues}) {
   }
 
   return (
-    <div {...getRootProps()} className="grid cursor-pointer"  >
-      <div className={`relative bg-stone-100 grid w-[250px] h-[250px] ${isDragActive? 'border-[3px] border-blue-700 border-dashed' : ''}`}>
+    <div className="grid cursor-pointer"  >
+      <div onClick={open} className={`relative bg-stone-100 grid w-[250px] h-[250px] ${isDragActive? 'border-[3px] border-blue-700 border-dashed' : ''}`}>
         <div className="absolute left-[42%] top-[25%] text-stone-300 font-bold text-[5rem]">+</div>
         {fileData[0]?.preview &&
         <AspectRatio ratio={1} className="flex place-content-center">
           <img src={fileData[0]?.preview as string} alt="Upload preview" className="object-contain"/>
           <CloseSvg
-            className="absolute bg-red-600 hover:bg-red-500 text-white w-10 h-10 right-0"
+            className="absolute p-1 bg-stone-950 hover:bg-red-500 text-white w-8 h-auto right-1 top-2 rounded-full"
             onClick={(e) => {
               e.stopPropagation(); 
               removeFile(1)
@@ -177,8 +184,10 @@ export function ImageSelect ({watch, setValue, getValues}) {
         </AspectRatio >
         }
       </div>
+      {/* ALL IMAGES SMALL PREVIEW */}
+      
       {/* <input type="file" accept=".jpg, .png, .webp, .jfif" onChange={handleFileChange} /> */}
-      <div className="">
+      <div onClick={open}>
         <input {...getInputProps()}/>
         <div className={`h-[50px] rounded bg-[rgb(255,_51,_51)] grid place-content-center`}>
           <p className="text-white ">Choose File</p>

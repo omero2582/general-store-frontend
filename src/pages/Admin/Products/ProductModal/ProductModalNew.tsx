@@ -116,15 +116,11 @@ export default function ProductModalNew({children}) {
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       {children}
-      <DialogContent className="max-w-[780px]">
-        <DialogTitle className="sr-only">New Product</DialogTitle>
-        <Description className="sr-only">{`Create New Product`}</Description>
-        <ProductModal
-          formHookReturn={formHookReturn}
-          onSubmit={onSubmit}
-          name={'New Product'}
-        />
-      </DialogContent>
+      <ProductModal
+        formHookReturn={formHookReturn}
+        onSubmit={onSubmit}
+        name={'New Product'}
+      />
     </Dialog>
   )
 }
