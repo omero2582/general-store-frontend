@@ -19,6 +19,12 @@ export default function ProductDetail() {
   const [addOrEditProductRating] = useAddOrEditProductRatingMutation();
   const [deleteProductRating] = useDeleteProductRatingMutation();
 
+  // dec 12 multi images
+  
+  const [selectedImageId, setSelectedImageId] = useState(1);
+  
+  //
+
   if(isLoading){
     return (
       <Spinner className='mt-[10px] text-neutral-700 w-[60px] h-auto'/>
@@ -36,38 +42,61 @@ export default function ProductDetail() {
   console.log(data)
   const {name, description, price, averageRating, numRatings, images} = data?.product || {}
   // const averageRating = 4.7
+  // dec 12
+  const selectedImage = images.find(i => i.order === selectedImageId) || images[0];
+  //
+
 
   const handleChangeRating = (newRating: number) => {
     addOrEditProductRating({id, body: {rating: newRating}});
   }
 
+
+
   return (
     <div className=" mt-8 grid sm:grid-flow-col gap-x-[24px] justify-center justify-items-center">
-      <div className="w-[250px] h-[250px] bg-stone-100 mb-[10px]">
-        <AspectRatio ratio={1} className="flex place-content-center">
-          <img src={images[0].url} className="object-contain"/>
-        </AspectRatio >
+      <div>
+        <div className="w-[250px] h-[250px] bg-stone-100 mb-[10px]">
+          <AspectRatio ratio={1} className="flex place-content-center">
+            <img src={selectedImage.url} className="object-contain"/>
+          </AspectRatio >
+        </div>
+        <div className="py-1 grid grid-cols-[repeat(3,_auto)] justify-center gap-[10px]">
+        {[...images].sort((a, b) => a?.order - b?.order).map(f => (
+          <div
+            className={`${selectedImageId === f.order ? 'ring-[#007185] ring-[3px]' : ''} bg-stone-100 grid w-[70px] h-[70px] rounded-md overflow-hidden`}
+            // onClick={() => setSelectedImageId(f.order)}
+            onMouseEnter={() => setSelectedImageId(f.order)}
+          >
+            {f?.url &&
+            <AspectRatio ratio={1} className="cursor-pointer flex place-content-center">
+              <img src={f?.url as string} alt={`image ${f.order} preview`} className="object-cover"/>
+            </AspectRatio >
+            }
+          </div> 
+        ))}
+        </div>
       </div>
-      <div className="grid gap-y-[5px] max-w-[400px]">
+      <div className="content-start grid gap-y-[5px] max-w-[400px]">
         <h1 className="text-[1.4rem] leading-snug">{name}</h1>
         <p className="text-[1.8rem] font-[500]">{getPrice(price)}</p>
         <div className=" grid grid-flow-col justify-start content-center">
-              <span>{averageRating}</span>
-              <div className="mt-[-2px] ml-[5px] mr-[8px]">
-                <StarRatings
-                    rating={averageRating}
-                    numberOfStars={5}
-                    name='rating'
-                    starDimension='20px'
-                    starSpacing='0px'
-                    starRatedColor='#E78A2E'
-                    // starEmptyColor='#acb9d2'
-                    starHoverColor='blue'
-                    changeRating={handleChangeRating}
-                />
-              </div>
-              <span>{new Intl.NumberFormat('en').format(numRatings)} ratings</span>
-            </div>
+          <span>{averageRating}</span>
+          <div className="mt-[-2px] ml-[5px] mr-[8px]">
+            <StarRatings
+                rating={averageRating}
+                numberOfStars={5}
+                name='rating'
+                starDimension='20px'
+                starSpacing='0px'
+                starRatedColor='#E78A2E'
+                // starEmptyColor='#acb9d2'
+                starHoverColor='blue'
+                changeRating={handleChangeRating}
+            />
+          </div>
+          <span>{new Intl.NumberFormat('en').format(numRatings)} ratings</span>
+        </div>
         <NumberInput value={quantityBuy} setValue={setQuantityBuy}/>
         <button
           disabled={resAddCartProduct.isLoading}

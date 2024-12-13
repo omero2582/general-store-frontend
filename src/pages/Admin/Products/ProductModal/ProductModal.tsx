@@ -57,7 +57,7 @@ export function ProductModal({formHookReturn, name, onSubmit} : ProductModalProp
 
  const fileData = watch('fileData');
 console.log('fileData', fileData);
-const fileLimit = 1;
+const fileLimit = 6;
 const onDrop = useCallback((acceptedFiles: Array<File>) => {
   console.log('ACCEPTED',acceptedFiles)
   acceptedFiles.forEach((file, index) => {
@@ -92,7 +92,7 @@ const onDrop = useCallback((acceptedFiles: Array<File>) => {
     'image/png': ['.jpg', '.png', '.webp', '.jfif']
   },
   // maxSize: would also need this in cloudinary/backend
-  maxFiles: 3,  // TODO this is ONLY max files dropped AT A SINGLE TIME, AKA considerd as 'accepted' by dropzone
+  maxFiles: fileLimit,  // TODO this is ONLY max files dropped AT A SINGLE TIME, AKA considerd as 'accepted' by dropzone
   // Dropzone 'acceptedFiles' reset every time the file input is opened.
   // This is not MAX TOTAL files to be added in our state, that needs to be limited another way
 });
@@ -108,7 +108,7 @@ const {getRootProps} = dropzoneReturn;
     >
       <h2 className="text-[18px] font-[500]">{name}</h2>
       <div className="grid grid-flow-col gap-x-5">
-        <div className="flex flex-col items-start gap-y-2">
+        <div className="mt-2 flex flex-col items-start gap-y-2">
           <Input errors={errors} id='name' label="Name" inputProps={{...register("name")}}/>
           <div className="grid">  {/*Description TextArea*/}
             <label htmlFor={'description'} className="sr-only">{'Description'}:</label>
@@ -116,6 +116,11 @@ const {getRootProps} = dropzoneReturn;
             {errors && errors['description'] && <p className="text-red-500">{`${errors['description'].message}`}</p>}
           </div>
           <Input errors={errors} type="number" id='price' label="Price" inputSx="max-w-[100px]" inputProps={{...register("price"), step: 0.01}}/>
+          <CategorySelect
+            categoriesToAdd={categoriesToAdd}
+            handleAddCategory={handleAddCategory}
+            handleRemoveCategory={handleRemoveCategory}
+          />
           <div className="flex gap-x-3">
             <label htmlFor="visibility">Visibility:</label>
             <select className="border-gray-400 border rounded-md" id="visibility" defaultValue="public" {...register("visibility")}>
@@ -123,23 +128,18 @@ const {getRootProps} = dropzoneReturn;
               <option value="private">Private</option>
             </select>
           </div>
-          <CategorySelect
-            categoriesToAdd={categoriesToAdd}
-            handleAddCategory={handleAddCategory}
-            handleRemoveCategory={handleRemoveCategory}
-          />
            {errors && errors['categories'] && <p className="text-red-500">{`${errors['categories'].message}`}</p>}
           
-          {/* <p>Available {categoriesNotSelected.map(c => c.name).join(', ') || '-'}</p> */}
+          {/* w-[83px]*/}
           <button disabled={!isDirty || isSubmitting} type="submit"
-            className=" w-[83px] px-4 py-[6px] text-white font-[500] bg-blue-600 disabled:bg-blue-500  rounded "
+            className="mt-auto self-stretch px-4 py-[6px] text-white font-[500] bg-blue-600 disabled:bg-blue-500  rounded "
           >
             {isSubmitting ? 
             <Spinner className='text-white w-auto h-auto'/> 
             : 'Submit'}
           </button>
         </div>
-        <ImageSelect dropzoneReturn={dropzoneReturn} setValue={setValue} watch={watch} getValues={getValues}/>
+        <ImageSelect fileLimit={fileLimit} dropzoneReturn={dropzoneReturn} setValue={setValue} watch={watch} getValues={getValues}/>
         
       </div>
       
@@ -149,12 +149,15 @@ const {getRootProps} = dropzoneReturn;
   )
 }
 
-export function ImageSelect ({watch, setValue, getValues, dropzoneReturn}) {
+export function ImageSelect ({fileLimit, watch, setValue, getValues, dropzoneReturn}) {
   const fileData = watch('fileData');
   console.log('fileData', fileData);
   
 
   const { acceptedFiles, getRootProps, getInputProps, isDragActive, open } = dropzoneReturn;
+
+  const [selectedImageId, setSelectedImageId] = useState(1);
+  const selectedImage = fileData.find(i => i.order === selectedImageId) || fileData[0];
 
   const removeFile = (orderNum: number) => {
     const prevFileData = getValues('fileData');
@@ -162,18 +165,28 @@ export function ImageSelect ({watch, setValue, getValues, dropzoneReturn}) {
       const removed = prevFileData.filter(f => f.order !== orderNum);
       const sorted = [...removed].sort((a, b) => a.order - b.order);
       const ordered = sorted.map((img, index) => ({...img, order: index + 1}))
+      // reason I do above, is to make sure everything is ordered/numbered 1 thourgh X, in consecutinve numbers
     //   return ordered;
     // })
-    setValue('fileData', ordered, {shouldDirty: ordered.length > 0})
+    setValue('fileData', ordered, {shouldDirty: ordered.length > 0});
+    
+    // moves the selection order number, accounting for the img removed'd order num
+    if(orderNum === selectedImageId){
+      setSelectedImageId(1);
+    }else if (orderNum < selectedImageId){
+      setSelectedImageId(i => i-1);
+    }
   }
+
+  
 
   return (
     <div className="grid cursor-pointer"  >
       <div onClick={open} className={`relative bg-stone-100 grid w-[250px] h-[250px] ${isDragActive? 'border-[3px] border-blue-700 border-dashed' : ''}`}>
         <div className="absolute left-[42%] top-[25%] text-stone-300 font-bold text-[5rem]">+</div>
-        {fileData[0]?.preview &&
+        {selectedImage?.preview &&
         <AspectRatio ratio={1} className="flex place-content-center">
-          <img src={fileData[0]?.preview as string} alt="Upload preview" className="object-contain"/>
+          <img src={selectedImage?.preview as string} alt="Upload preview" className="object-contain"/>
           <CloseSvg
             className="absolute p-1 bg-stone-950 hover:bg-red-500 text-white w-8 h-auto right-1 top-2 rounded-full"
             onClick={(e) => {
@@ -184,15 +197,39 @@ export function ImageSelect ({watch, setValue, getValues, dropzoneReturn}) {
         </AspectRatio >
         }
       </div>
-      {/* ALL IMAGES SMALL PREVIEW */}
-      
       {/* <input type="file" accept=".jpg, .png, .webp, .jfif" onChange={handleFileChange} /> */}
       <div onClick={open}>
         <input {...getInputProps()}/>
         <div className={`h-[50px] rounded bg-[rgb(255,_51,_51)] grid place-content-center`}>
-          <p className="text-white ">Choose File</p>
+          <p className="text-white ">Choose Files</p>
         </div>
       </div>
+      {/* ALL IMAGES SMALL PREVIEW */}
+      {/** border-[#007185] border-2 | outline outline-[#007185] outline-2 | ring-[#007185] ring-2 */}
+      <div className="py-1 grid grid-cols-[repeat(3,_auto)] justify-center gap-[10px]">
+        {fileData?.map(f => (
+        <div
+          className={`${selectedImageId === f.order ? 'ring-[#007185] ring-[3px]' : ''} bg-stone-100 grid w-[70px] h-[70px] rounded-md overflow-hidden`}
+          onClick={() => setSelectedImageId(f.order)}
+        >
+          {f?.preview &&
+          <AspectRatio ratio={1} className="flex place-content-center">
+            <img src={f?.preview as string} alt={`image ${f.order} preview`} className="object-cover"/>
+            <CloseSvg
+              className="absolute p-1 bg-stone-950 hover:bg-red-500 text-white w-5 h-auto right-0 top-0 rounded-full"
+              onClick={(e) => {
+                e.stopPropagation(); 
+                removeFile(f.order)
+              }}
+            />
+          </AspectRatio >
+          }
+        </div> 
+        ))}
+      </div>
+      <p className="justify-self-end pt-[2px]">Photos · {fileData.length} / {fileLimit}</p>
+      
+      
     </div>
   )
 }
@@ -243,7 +280,7 @@ export function CategorySelect ({categoriesToAdd, handleAddCategory, handleRemov
   return (
     <>
       <div className="max-w-[536px] ">
-        <Command className="border-2 border-neutral-400 relative z-50 overflow-visible" ref={commandRef}
+        <Command className="border-gray-400 border rounded-md relative z-50 overflow-visible" ref={commandRef}
           onBlur={(e) => handleCommandBlur(e)}
           // if we dont do this, and only leave onBlur on CommandInput, then 
           // if we target CommandInput -> then target scrollbar on CommandList
@@ -264,7 +301,7 @@ export function CategorySelect ({categoriesToAdd, handleAddCategory, handleRemov
               />
 
           </div>
-          <CommandList className="absolute bg-white top-[40px]" hidden={!open}>
+          <CommandList className="absolute bg-white top-[35px] shadow-2xl" hidden={!open}>
             <CommandEmpty  className="text-[16px] px-[8px] py-[6px]">
               No results found.
             </CommandEmpty>
@@ -272,9 +309,10 @@ export function CategorySelect ({categoriesToAdd, handleAddCategory, handleRemov
               {categoriesNotSelected &&
                 categoriesNotSelected.map(c => (
                   <CommandItem
-                  onSelect={()=> handleSelect(c)}
-                  key={c.id}
-                  className="text-[16px] min-w-[250px]"
+                    onSelect={()=> handleSelect(c)}
+                    key={c.id}
+                    className="text-[16px] min-w-[250px] cursor-pointer"
+
                   >
                     {c.name}
                   </CommandItem>
@@ -285,17 +323,19 @@ export function CategorySelect ({categoriesToAdd, handleAddCategory, handleRemov
         </Command>
         
       </div>
-      <div className= "space-x-2 space-y-[3px] grid justify-items-start">
-        {categoriesSelected.map(c => (
-          <button type="button" key={c.id} className="relative flex items-center rounded-md space-x-[3px] bg-neutral-800 text-neutral-100 pl-[9px] pr-[5px] py-[3px]">
-            <span>{c.name}</span>
-            <CloseSvg 
-              className='cursor-pointer text-white w-[14px] h-auto'
-              onClick={() => handleRemoveCategory(c)}
-            />
-          </button>
-        ))}
-      </div>
+      {categoriesSelected.length > 0 && 
+        <div className= "gap-x-2 gap-y-[3px] flex flex-wrap justify-start">
+          {categoriesSelected.map(c => (
+            <button type="button" key={c.id} className="relative flex items-center rounded-md space-x-[3px] bg-neutral-800 text-neutral-100 pl-[9px] pr-[5px] py-[3px]">
+              <span>{c.name}</span>
+              <CloseSvg 
+                className='cursor-pointer text-white w-[14px] h-auto'
+                onClick={() => handleRemoveCategory(c)}
+              />
+            </button>
+          ))}
+        </div>
+      }
     </>
   )
 }

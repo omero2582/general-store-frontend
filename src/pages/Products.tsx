@@ -19,12 +19,14 @@ export default function Products({showAdmin = false, query}) {
   return (
 
       <div className=" grid justify-center mx-auto gap-4 max-w-[1920px] grid-cols-[repeat(auto-fit,_minmax(0,_250px))]">
-        {data && data.products.map(p => (
+        {data && data.products.map(p => {
+          const productWithOrderedImages = {...p, images: [...p.images].sort((a, b) => a?.order - b?.order)}
+          return(
           <div key={p.id}>
             <Link to={`/product/${p.id}`}>
               <div className="bg-stone-100 grid">
                 <AspectRatio ratio={1} className="place-self-center">
-                  <img src={p.images[0].url} className="max-h-[250px]"/>
+                  <img src={productWithOrderedImages.images[0]?.url} className="max-h-[250px]"/>
                 </AspectRatio >
               </div>
               <h3 className="pt-2 font-[400] text-[0.95rem] line-clamp-4 hover:underline cursor-pointer">
@@ -63,7 +65,7 @@ export default function Products({showAdmin = false, query}) {
                   >
                     Delete
                   </button>                 
-                  <ProductModalEdit product={p}>
+                  <ProductModalEdit product={productWithOrderedImages}>
                     <DialogTrigger className="px-3 py-1 bg-neutral-800 rounded-md text-white">
                       Edit
                     </DialogTrigger>
@@ -75,7 +77,7 @@ export default function Products({showAdmin = false, query}) {
             }
               {/* <pre>{JSON.stringify(p, null, 2)}</pre> */}
           </div>
-          ))}
+          )})}
         </div>
   )
 }
