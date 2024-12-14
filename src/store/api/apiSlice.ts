@@ -54,7 +54,7 @@ export const apiSlice = createApi({
       providesTags: (result, error, {id}) => [{ type: 'Products', id }],
     }),
     getProducts: builder.query({
-      query: () => '/products',
+      query: (params) => params?.query ? `/products${params?.query}`: '/products',
       async onQueryStarted(arg, api){
         // api.queryFulfilled promise
         //https://redux.js.org/tutorials/essentials/part-8-rtk-query-advanced#the-onquerystarted-lifecycle
@@ -72,7 +72,8 @@ export const apiSlice = createApi({
           : [{ type: 'Products', id: 'LIST' }],
     }),
     getProductsAdmin: builder.query({
-      query: () => '/products/admin',
+      // query: () => '/products/admin',
+      query: (params) => params?.query ? `/products/admin${params?.query}`: '/products/admin',
       providesTags: (result) =>
         result
           ? [

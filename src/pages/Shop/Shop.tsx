@@ -2,9 +2,13 @@ import { useGetProductsQuery } from "@/store/api/apiSlice";
 import Products from "../Products";
 import { HiOutlineAdjustmentsHorizontal } from "react-icons/hi2";
 import { Spinner } from "@/components/Spinner";
+import { useLocation, useSearchParams } from "react-router-dom";
 
 export default function Shop (){
-  const productsQuery = useGetProductsQuery(null);
+  
+  const location = useLocation();
+
+  const productsQuery = useGetProductsQuery({query: location.search});
 
   const {error, data, isLoading} = productsQuery;
   if(isLoading){

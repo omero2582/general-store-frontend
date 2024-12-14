@@ -9,6 +9,7 @@ import Products from "../../Products";
 import { Spinner } from '@/components/Spinner';
 import ProductModalNew from './ProductModal/ProductModalNew';
 import { useState } from 'react';
+import { useLocation, useSearchParams } from 'react-router-dom';
 
 export default function ManageProducts() {
 
@@ -24,12 +25,12 @@ export default function ManageProducts() {
     }, productSchemaNoImage))
   });
   
-
   // TODO, maybe move the query inside of Produycts, then toggle between
   // the adminProductQUery or the non-admin one based on 'showAdmin'
   // The only problem with that, is that I still want the hook here so that I can
   // conditionally render the entire component differently depending on error like I do below
-  const productsAdminQuery = useGetProductsAdminQuery();
+  const location = useLocation();
+  const productsAdminQuery = useGetProductsAdminQuery({query: location.search});
   
   const {error, data, isLoading} = productsAdminQuery;
   

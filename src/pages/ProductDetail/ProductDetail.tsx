@@ -6,6 +6,7 @@ import { useAddCartProductMutation, useAddOrEditProductRatingMutation, useDelete
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import StarRatings from 'react-star-ratings';
+import ReactMarkdown from 'react-markdown';
 
 
 export default function ProductDetail() {
@@ -40,8 +41,8 @@ export default function ProductDetail() {
 
 
   console.log(data)
-  const {name, description, price, averageRating, numRatings, images} = data?.product || {}
-  // const averageRating = 4.7
+  const {name, description, price, rating, numRatings, images} = data?.product || {}
+  // const rating = 4.7
   // dec 12
   const selectedImage = images.find(i => i.order === selectedImageId) || images[0];
   //
@@ -56,7 +57,7 @@ export default function ProductDetail() {
   return (
     <div className=" mt-8 grid sm:grid-flow-col gap-x-[24px] justify-center justify-items-center">
       <div>
-        <div className="w-[250px] h-[250px] bg-stone-100 mb-[10px]">
+        <div className="w-[320px] h-auto bg-stone-100 mb-[10px]">
           <AspectRatio ratio={1} className="flex place-content-center">
             <img src={selectedImage.url} className="object-contain"/>
           </AspectRatio >
@@ -64,7 +65,7 @@ export default function ProductDetail() {
         <div className="py-1 grid grid-cols-[repeat(3,_auto)] justify-center gap-[10px]">
         {[...images].sort((a, b) => a?.order - b?.order).map(f => (
           <div
-            className={`${selectedImageId === f.order ? 'ring-[#007185] ring-[3px]' : ''} bg-stone-100 grid w-[70px] h-[70px] rounded-md overflow-hidden`}
+            className={`${selectedImageId === f.order ? 'ring-[#007185] ring-[3px]' : ''} bg-stone-100 grid w-[70px] h-auto rounded-md overflow-hidden`}
             // onClick={() => setSelectedImageId(f.order)}
             onMouseEnter={() => setSelectedImageId(f.order)}
           >
@@ -81,10 +82,10 @@ export default function ProductDetail() {
         <h1 className="text-[1.4rem] leading-snug">{name}</h1>
         <p className="text-[1.8rem] font-[500]">{getPrice(price)}</p>
         <div className=" grid grid-flow-col justify-start content-center">
-          <span>{averageRating}</span>
+          <span>{rating}</span>
           <div className="mt-[-2px] ml-[5px] mr-[8px]">
             <StarRatings
-                rating={averageRating}
+                rating={rating}
                 numberOfStars={5}
                 name='rating'
                 starDimension='20px'
@@ -110,7 +111,19 @@ export default function ProductDetail() {
         </button>
         <div className="mt-[10px]">
             <p className="font-[700] text-[1.1rem]">Product Description</p>
-           <p>{description}</p>
+           {/* <p style={{ whiteSpace: 'pre-line' }}>{description}</p> */}
+            <ReactMarkdown
+              allowedElements={['p', 'ul', 'li', 'br']}
+              unwrapDisallowed={true} // Prevents rendering disallowed elements as text
+              components={{
+                p: ({ children }) => <p className="mb-4">{children}</p>,
+                ul: ({ children }) => <ul className="list-disc  mb-4">{children}</ul>,
+                li: ({ children }) => <li className="ml-6">{children}</li>,
+                br: () => <br className="block my-2" />, // Add spacing for line breaks
+              }}
+            >
+              {description}
+            </ReactMarkdown>
           </div>
       </div>
     </div>
