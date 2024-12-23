@@ -48,13 +48,13 @@ export default function ManageProducts() {
   }
   return (
     <>
-      <div className="grid grid-flow-col justify-start gap-4 items-end">
-        <h2 className="text-[22px] font-[500]">My Products</h2>
-          <ProductModalNew>
-            <DialogTrigger className="text-white text-[1rem] font-[500] bg-blue-600 px-4 py-[6px] rounded">
-              New +
-            </DialogTrigger>
-          </ProductModalNew>
+      <div className="grid grid-flow-col justify-start gap-4 items-center">
+        <h2 className="text-[22px] font-[500] py-[6px] ml-2">My Products</h2>
+        <ProductModalNew>
+          <DialogTrigger className="text-white text-[1rem] font-[500] bg-blue-600 px-4 py-[6px] rounded">
+            New +
+          </DialogTrigger>
+        </ProductModalNew>
       </div>
       <Products showAdmin={true} query={productsAdminQuery}/>  
     </>

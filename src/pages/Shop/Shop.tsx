@@ -11,6 +11,7 @@ export default function Shop (){
   const productsQuery = useGetProductsQuery({query: location.search});
 
   const {error, data, isLoading} = productsQuery;
+  
   if(isLoading){
     return (
       <Spinner className='mt-[10px] text-neutral-700 w-[60px] h-auto'/>
@@ -26,13 +27,6 @@ export default function Shop (){
   return (
   <div className='py-10'>
     <h1 className="sr-only">Shop</h1>
-    {/*<button className="grid justify-start">
-      <div className="grid grid-flow-col bg-amber-400 px-2 py-1 border-[3px] border-blue-600">
-        <HiOutlineAdjustmentsHorizontal size={'1.5rem'}/>
-        <p className="text-[1rem]">Sort & Filter</p>
-      </div>
-      <div className="py-5"/> 
-    </button> */}
     <Products query={productsQuery}/>
   </div>
   )

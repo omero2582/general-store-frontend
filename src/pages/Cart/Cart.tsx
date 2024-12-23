@@ -30,7 +30,7 @@ export default function Cart() {
             <p className="font-medium text-center">{getPrice(data.cart.total)}</p>
           </div>
         </>
-      : <p className="text-center pt-[6px]">Your Cart is empty. Check out <Link to={'/store'} className="text-blue-500">the shop</Link> and add some items</p>
+      : <p className="text-center pt-[6px]">Your Cart is empty. Check out <Link to={'/shop'} className="text-blue-500">the shop</Link> and add some items</p>
     }
     </div>
   )

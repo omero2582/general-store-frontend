@@ -3,8 +3,8 @@ import NumberInput from "@/components/NumberInput/NumberInput";
 import { Spinner } from "@/components/Spinner";
 import { getPrice } from "@/lib/utils";
 import { useAddCartProductMutation, useAddOrEditProductRatingMutation, useDeleteProductRatingMutation, useGetProductQuery } from "@/store/api/apiSlice"
-import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { Fragment, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import StarRatings from 'react-star-ratings';
 import ReactMarkdown from 'react-markdown';
 
@@ -41,7 +41,7 @@ export default function ProductDetail() {
 
 
   console.log(data)
-  const {name, description, price, rating, numRatings, images} = data?.product || {}
+  const {name, description, price, rating, numRatings, images, categories} = data?.product || {}
   // const rating = 4.7
   // dec 12
   const selectedImage = images.find(i => i.order === selectedImageId) || images[0];
@@ -65,6 +65,7 @@ export default function ProductDetail() {
         <div className="py-1 grid grid-cols-[repeat(3,_auto)] justify-center gap-[10px]">
         {[...images].sort((a, b) => a?.order - b?.order).map(f => (
           <div
+            key={f.publicId}
             className={`${selectedImageId === f.order ? 'ring-[#007185] ring-[3px]' : ''} bg-stone-100 grid w-[70px] h-auto rounded-md overflow-hidden`}
             // onClick={() => setSelectedImageId(f.order)}
             onMouseEnter={() => setSelectedImageId(f.order)}
@@ -81,6 +82,7 @@ export default function ProductDetail() {
       <div className="content-start grid gap-y-[5px] max-w-[400px]">
         <h1 className="text-[1.4rem] leading-snug">{name}</h1>
         <p className="text-[1.8rem] font-[500]">{getPrice(price)}</p>
+        
         <div className=" grid grid-flow-col justify-start content-center">
           <span>{rating}</span>
           <div className="mt-[-2px] ml-[5px] mr-[8px]">
@@ -98,6 +100,20 @@ export default function ProductDetail() {
           </div>
           <span>{new Intl.NumberFormat('en').format(numRatings)} ratings</span>
         </div>
+        { categories?.length > 0 && 
+        <p className="mt-[0px] mb-[7px]">In: {categories
+          .map((c, index) => (
+          <Fragment key={c.id}>
+            <Link
+              to={`/shop?categories=${c.name}`}
+              className=" text-blue-700 hover:text-blue-500 cursor-pointer"
+            >
+              {c.name}
+            </Link>
+            {index + 1 < categories.length && ', '}
+          </Fragment>
+          ))}
+        </p>}
         <NumberInput value={quantityBuy} setValue={setQuantityBuy}/>
         <button
           disabled={resAddCartProduct.isLoading}
@@ -112,6 +128,7 @@ export default function ProductDetail() {
         <div className="mt-[10px]">
             <p className="font-[700] text-[1.1rem]">Product Description</p>
            {/* <p style={{ whiteSpace: 'pre-line' }}>{description}</p> */}
+            {description ?
             <ReactMarkdown
               allowedElements={['p', 'ul', 'li', 'br']}
               unwrapDisallowed={true} // Prevents rendering disallowed elements as text
@@ -122,8 +139,9 @@ export default function ProductDetail() {
                 br: () => <br className="block my-2" />, // Add spacing for line breaks
               }}
             >
-              {description}
+              {description} 
             </ReactMarkdown>
+            :<p className="text-neutral-800 italic">No Description.</p>}
           </div>
       </div>
     </div>
