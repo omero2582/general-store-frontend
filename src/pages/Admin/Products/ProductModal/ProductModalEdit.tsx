@@ -47,7 +47,7 @@ export default function ProductModalEdit({product, children}) {
       ...product,
       categories: product?.categories?.map(c => c.id) || [],
       fileData: getStartingProductImages(),
-    }
+    }, mode: 'onChange' // TODO, this is new
   });
   
   

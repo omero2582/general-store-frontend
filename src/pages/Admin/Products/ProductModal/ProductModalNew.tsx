@@ -34,7 +34,7 @@ export default function ProductModalNew({children}) {
     defaultValues: {
       categories:  [],
       fileData: [],
-    }
+    }, mode: 'onChange' // TODO, this is new
   });
   
   

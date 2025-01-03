@@ -9,6 +9,7 @@ import { UseFormReturn } from "react-hook-form";
 import { Spinner } from "@/components/Spinner";
 import { DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Description } from "@radix-ui/react-dialog";
+import { productSchemaNoImage } from "@shared/dist/schemas";
 
 type ProductModalProps = {
   formHookReturn: UseFormReturn<any>
@@ -22,7 +23,7 @@ export function ProductModal({formHookReturn, name, onSubmit} : ProductModalProp
 
   // Form setup
   const { 
-    register, getValues, handleSubmit, formState: {errors, isSubmitting, isDirty}, reset, setError, watch, control, setValue
+    register, getValues, handleSubmit, formState: {errors, isSubmitting, isDirty},setFocus, reset, setError, watch, control, setValue, trigger
   } = formHookReturn;
   // Moved useForm() call outside of this component, and now it comes as props,
   // Otherwise the state of the form would be cleared on as soon as modal closes.
@@ -99,7 +100,30 @@ const onDrop = useCallback((acceptedFiles: Array<File>) => {
 
 const {getRootProps} = dropzoneReturn;
 
-  return (
+
+// Extracting max lengths constraints on schema, to display in UI
+const nameShape = productSchemaNoImage.shape.name;
+const nameMax = nameShape.maxLength;
+
+const descShape = productSchemaNoImage.shape.description;
+const descMax = descShape._def.innerType.maxLength;
+
+const categoriesShapeArr = productSchemaNoImage.shape.categories;
+// const {defaultValue, typeName, innerType, description, errorMap} = categoriesShapeArr._def
+const categoriesShape = categoriesShapeArr._def.innerType._def
+const categoriesMax = categoriesShape.maxLength?.value
+
+const lengthInfo = {
+  name: { max: nameMax, value: watch('name'), onChange: async () => await trigger('name'), get lengthError() {return this?.value?.length > this?.max}},
+  description: {max: descMax, value: watch('description'), onChange: async () => await trigger('description'), get lengthError() {return this?.value?.length > this?.max}},
+  categories: {max: categoriesMax, value: watch('categories'), onChange: async () => await trigger('categories'), get lengthError() {return this?.value?.length > this?.max}},
+}
+
+const descWrapperOnClick =  () => {
+  setFocus('description');
+}
+
+return (
   <DialogContent {...getRootProps()}  onClick={e => e.stopPropagation()} className="max-w-[780px]" >
     <DialogTitle className="sr-only">{name}</DialogTitle>
     <Description className="sr-only">{name}</Description>  
@@ -108,11 +132,15 @@ const {getRootProps} = dropzoneReturn;
     >
       <h2 className="text-[18px] font-[500]">{name}</h2>
       <div className="grid grid-flow-col gap-x-5">
-        <div className="mt-2 flex flex-col items-start gap-y-2">
-          <Input errors={errors} id='name' label="Name" inputProps={{...register("name")}}/>
-          <div className="grid">  {/*Description TextArea*/}
-            <label htmlFor={'description'} className="sr-only">{'Description'}:</label>
-            <textarea className="p-[6px] resize-none border-gray-400 border rounded-md" cols={50} rows={4} spellCheck={false} placeholder="Description" {...register("description")}/>
+        <div className="mt-2 flex flex-col gap-y-2">
+          <Input lengthInfo={lengthInfo.name} errors={errors} id='name' label="Name" inputProps={{...register("name")}}/>
+          {/*Description TextArea*/}
+          <div className="grid">
+            <div onClick={() => descWrapperOnClick()} className="overflow-hidden focus-within:outline outline-[2px] outline-offset-[-2px] outline-black grid border-gray-400 border rounded-md ">
+              <label htmlFor={'description'} className="sr-only">{'Description'}:</label>
+              <textarea  className={`outline-none resize-none peer p-[6px] `} cols={50} rows={4} spellCheck={false} placeholder="Description" {...register("description")}/>    
+              <span className={`${lengthInfo.description.lengthError ? 'opacity-100' : 'opacity-0' } peer-focus:opacity-100 pointer-events-none justify-self-end mr-[8px] text-[0.75rem] ${lengthInfo.description.lengthError ? 'text-red-600' : 'text-gray-600'}`}>{`${lengthInfo?.description?.value?.length}/${lengthInfo?.description?.max}`}</span>
+            </div>  
             {errors && errors['description'] && <p className="text-red-500">{`${errors['description'].message}`}</p>}
           </div>
           <Input errors={errors} type="number" id='price' label="Price" inputSx="max-w-[100px]" inputProps={{...register("price"), step: 0.01}}/>
@@ -120,6 +148,7 @@ const {getRootProps} = dropzoneReturn;
             categoriesToAdd={categoriesToAdd}
             handleAddCategory={handleAddCategory}
             handleRemoveCategory={handleRemoveCategory}
+            lengthInfo={lengthInfo.categories}
           />
           <div className="flex gap-x-3">
             <label htmlFor="visibility">Visibility:</label>
@@ -234,7 +263,7 @@ export function ImageSelect ({fileLimit, watch, setValue, getValues, dropzoneRet
   )
 }
 
-export function CategorySelect ({categoriesToAdd, handleAddCategory, handleRemoveCategory}) {
+export function CategorySelect ({categoriesToAdd, handleAddCategory, handleRemoveCategory, lengthInfo}) {
   const [open, setOpen]= useState(false);
   const [search, setSearch] = useState('');
   const commandRef = useRef<HTMLInputElement>(null);
@@ -279,7 +308,7 @@ export function CategorySelect ({categoriesToAdd, handleAddCategory, handleRemov
 
   return (
     <>
-      <div className="max-w-[536px] ">
+      <div className="max-w-[536px] self-start ">
         <Command className="border-gray-400 border rounded-md relative z-50 overflow-visible" ref={commandRef}
           onBlur={(e) => handleCommandBlur(e)}
           // if we dont do this, and only leave onBlur on CommandInput, then 
@@ -288,7 +317,7 @@ export function CategorySelect ({categoriesToAdd, handleAddCategory, handleRemov
           // onBlur of CommandInput, because it was unfocused 2 steps ago
           // so we need this onBlur here too (we need both here an in CommmnadInput)
           >
-          <div className="">
+          <div className="grid grid-flow-col items-center">
             <CommandInput
               value={search}
               onValueChange={setSearch}
@@ -297,11 +326,11 @@ export function CategorySelect ({categoriesToAdd, handleAddCategory, handleRemov
               ref={inputRef}
               // onBlur={() => setOpen(false)}  // doesnt work because it doenst let onSelect run on CommandItem
               onBlur={(e) => handleCommandBlur(e)}
-              className="text-[16px] py-0 h-8"
+              className="text-[16px] py-0 h-8 relative"
               />
-
+              <span className={`ml-[-8px] ${lengthInfo?.lengthError ? 'opacity-100' : 'opacity-0' } ${open && 'opacity-100'} pointer-events-none justify-self-end mr-[8px] text-[0.75rem] ${lengthInfo?.lengthError ? 'text-red-600' : 'text-gray-600'}`}>{`${lengthInfo?.value?.length}/${lengthInfo?.max}`}</span>
           </div>
-          <CommandList className="absolute bg-white top-[35px] shadow-2xl" hidden={!open}>
+          <CommandList className="min-w-[250px] absolute bg-white top-[35px] shadow-2xl" hidden={!open}>
             <CommandEmpty  className="text-[16px] px-[8px] py-[6px]">
               No results found.
             </CommandEmpty>
@@ -311,7 +340,7 @@ export function CategorySelect ({categoriesToAdd, handleAddCategory, handleRemov
                   <CommandItem
                     onSelect={()=> handleSelect(c)}
                     key={c.id}
-                    className="text-[16px] min-w-[250px] cursor-pointer"
+                    className="text-[16px]  cursor-pointer"
 
                   >
                     {c.name}
