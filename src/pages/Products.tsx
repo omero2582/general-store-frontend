@@ -171,7 +171,8 @@ export default function Products({showAdmin = false, query}) {
                     </ProductModalEdit>
                     
                   </div>
-                  {p?.createdBy && <p>created by: {p.createdBy?.username} ({p.createdBy?.userLevel})</p>}
+                  <p>level required: {p.minUserLevelForActions}</p>
+                  <p>created by: {p?.createdBy?.username}</p>
                 </>
                 }
                 {/* <pre>{JSON.stringify(p, null, 2)}</pre> */}
