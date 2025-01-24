@@ -13,9 +13,36 @@ import Footer from './layout/Footer'
 import Cart from './pages/Cart/Cart'
 // import { productSchema } from '@shared/schemas/schemas'
 // console.log(productSchema.shape)
-
+import { io } from "socket.io-client";
+import { useEffect } from 'react'
 
 function App() {
+  useEffect(() => {
+    // const socket = io('/socket.io'); // does not work, it confuses this with namespace
+    const socket = io({
+      path: "/socket.io",
+    });
+    
+    // https://socket.io/docs/v3/emit-cheatsheet/
+    //const socket = io();  // also works
+    // const socket = io('http://127.0.0.1:3000'); // works, but w need proxy, not direct connect
+    // Emit an event to the server
+    // socket.emit('message', 'hi');
+
+    // client-side
+    socket.on("connect", () => {
+      console.log(`Socket connected ${socket.id}`);
+    });
+    
+    socket.on("join-room", (room) => {
+      console.log(`Joined room ${room}`);
+    })
+
+     // Clean up on component unmount
+     return () => {
+      socket.disconnect();
+    };
+  }, [])
   const user = useAppSelector((state) => state.user.user);
   useMeQuery();
 

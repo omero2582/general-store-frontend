@@ -13,7 +13,16 @@ export default defineConfig({
         // target: 'http://localhost:3000',
         target: 'http://127.0.0.1:3000',
         changeOrigin: false,
-      }
+      },
+
+      '/socket.io': {
+        target: 'http://127.0.0.1:3000',
+        ws: true,
+        rewriteWsOrigin: true,
+        // changeOrigin: true,
+        // '/socket.io'http://127.0.0.1:3000
+        // secure: false,
+      },
     }
   },
 })
