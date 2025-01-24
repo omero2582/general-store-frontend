@@ -90,7 +90,7 @@ const onDrop = useCallback((acceptedFiles: Array<File>) => {
  const dropzoneReturn = useDropzone({
   onDrop,
   accept: {
-    'image/png': ['.jpg', '.png', '.webp', '.jfif']
+    'image/png': ['.jpg', './jpeg', '.png', '.webp', '.jfif']
   },
   // maxSize: would also need this in cloudinary/backend
   maxFiles: fileLimit,  // TODO this is ONLY max files dropped AT A SINGLE TIME, AKA considerd as 'accepted' by dropzone
