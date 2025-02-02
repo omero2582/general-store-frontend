@@ -15,43 +15,25 @@ import Cart from './pages/Cart/Cart'
 // console.log(productSchema.shape)
 import { io } from "socket.io-client";
 import { useEffect } from 'react'
+import { useSocketContext } from './hooks/socket'
 
 function App() {
-  useEffect(() => {
-    // const socket = io('/socket.io'); // does not work, it confuses this with namespace
-    const socket = io({
-      path: "/socket.io",
-    });
-    
-    // https://socket.io/docs/v3/emit-cheatsheet/
-    //const socket = io();  // also works
-    // const socket = io('http://127.0.0.1:3000'); // works, but w need proxy, not direct connect
-    // Emit an event to the server
-    // socket.emit('message', 'hi');
-
-    // client-side
-    socket.on("connect", () => {
-      console.log(`Socket connected ${socket.id}`);
-    });
-    
-    socket.on("join-room", (room) => {
-      console.log(`Joined room ${room}`);
-    })
-
-     // Clean up on component unmount
-     return () => {
-      socket.disconnect();
-    };
-  }, [])
-  const user = useAppSelector((state) => state.user.user);
   useMeQuery();
-
+  const user = useAppSelector((state) => state.user.user);
   const {authProviders, createdAt, updatedAt, __v, ...rest} = user || {};
+
+  const {socket} = useSocketContext();
 
   return (
     <BrowserRouter>
     <div className='grid grid-rows-[auto_1fr_auto] min-h-[100vh] items-start'>
       <Navbar/>
+      <button
+        className='p-2 bg-slate-700 rounded text-white'
+        onClick={() => socket.emit('message', 'BUTTON')}
+      >
+        EMIT WHEN WS CONNECTED
+      </button>
       <Routes>
         <Route path="/" element={<Navigate to="/shop"/> }/>
         {/* <Route path="/" element={<Home />} /> */}
