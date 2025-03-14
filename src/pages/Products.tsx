@@ -69,7 +69,7 @@ export default function Products({showAdmin = false, query}) {
             <select id="sort"
               value={sort || 'default'}  // sets default, without changing the url
               onChange={handleSort}
-              className="border border-black rounded ml-[6px]"
+              className="border border-black rounded ml-[6px] px-2"
             >
               <option value="default">Default</option>
               <option value="price-asc">Price: Low to High</option>

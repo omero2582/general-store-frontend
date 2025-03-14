@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { setUser } from "../slices/userSlice";
+import axios from "axios";
 
 // TODO prob combine all api slices into one api slice
 
@@ -253,8 +254,21 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ['Users'],
     }),
+    // me: builder.query({
+    //   query: () => '/auth/me',
+    //   providesTags: ['Users']
+    // }),
     me: builder.query({
-      query: () => '/auth/me',
+      queryFn: async ( args, { dispatch, getState }, extraOptions) => {
+
+        try {
+          const {data} = await axios.get('/api/auth/me')
+          dispatch(setUser(data?.user))
+          return { data }
+        } catch (error) {
+          return { error }
+        }
+      },
       providesTags: ['Users']
     }),
 

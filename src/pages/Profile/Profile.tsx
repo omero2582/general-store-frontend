@@ -34,7 +34,7 @@ export default function Profile() {
     )
   }
   //
-  const {userLevel, displayName, nameFull, email, username, createdAt, cookie} = user || {};
+  const {userLevel, displayName, nameFull, email, username, createdAt, session} = user || {};
   // const date2 = dateOriginal.toString()
   const date = new Intl.DateTimeFormat(undefined, { 
     dateStyle: 'medium', timeStyle: 'long'
@@ -55,13 +55,13 @@ export default function Profile() {
         <div className="mt-4">
           <p>Current Session Info:</p>
           <p>{'Expires in: '}
-            {formatDistanceToNowStrict(new Date(cookie?.expires || null), {roundingMethod: 'floor'})}
+            {formatDistanceToNowStrict(new Date(session?.expires || null), {roundingMethod: 'floor'})}
             {' ('} 
             {new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'long'})
-              .format(new Date(cookie?.expires || null))}
+              .format(new Date(session?.expires || null))}
             {')'} 
           </p>
-          <p>Original Expiry Time: {formatDistance(0, cookie?.originalMaxAge || null, {includeSeconds: true})}</p>
+          <p>Original Expiry Time: {formatDistance(0, session?.originalMaxAge || null, {includeSeconds: true})}</p>
         </div>
       </>
       }
