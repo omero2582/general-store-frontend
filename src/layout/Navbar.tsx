@@ -19,9 +19,10 @@ import {
 } from "@/components/ui/avatar"
 
 export function Navbar() {
-  const user = useAppSelector((state) => state.user.user);
   const {isLoading, data} = useMeQuery();
   const [logout, resLogout] = useLogoutGoogleMutation();
+
+  const user = data?.user;
 
   const cartQuery = useGetCartQuery(undefined, {
     skip: !user

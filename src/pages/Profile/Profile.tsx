@@ -1,12 +1,11 @@
 import { Spinner } from "@/components/Spinner";
 import { useMeQuery } from "@/store/api/apiSlice";
-import { useAppSelector } from "@/store/store";
 import { formatDistance, formatDistanceToNowStrict } from "date-fns";
 
 
 export default function Profile() {
-  const user = useAppSelector((state) => state.user.user);
-  const {isFetching} = useMeQuery()
+  const { data, isFetching} = useMeQuery()
+  const user = data?.user;
   // maybe add params to above (undefined, {refetchOnMountOrArgChange: true})
   // so that it always refetches when this page loads
 

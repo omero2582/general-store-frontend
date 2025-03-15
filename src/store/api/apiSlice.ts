@@ -1,5 +1,4 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { setUser } from "../slices/userSlice";
 import axios from "axios";
 
 // TODO prob combine all api slices into one api slice
@@ -269,13 +268,12 @@ export const apiSlice = createApi({
 
         try {
           const {data} = await axios.get('/api/auth/me')
-          dispatch(setUser(data?.user))
           return { data }
         } catch (error) {
           return { error }
         }
       },
-      providesTags: ['Users']
+      providesTags: ['Users'],
     }),
 
 
@@ -321,8 +319,13 @@ export const {
   //users
   useChangeUserLevelMutation,
   useLogoutGoogleMutation,
-  useMeQuery,
 } = apiSlice;
+
+// user
+// doing it like this, beccause RTK Query doesnt let you define query options in the endpoint
+// definitions above.... It only lets you define it globaly, or when you call the hook..
+const {useMeQuery: useOriginalMeQuery} = apiSlice;
+export const useMeQuery = () => useOriginalMeQuery(undefined, {refetchOnMountOrArgChange: 60})
 
 export default apiSlice.reducer;
 

@@ -13,7 +13,7 @@ import Footer from './layout/Footer'
 import Cart from './pages/Cart/Cart'
 
 function App() {
-  useMeQuery();
+  const {data} = useMeQuery();
   // After above, consider adding an if Loading {return spinner} and/or turning it
   // into a context/hook and/or Route wrapper comonent
   // research how to properly do this. Off the top of my head there are pros & cons
@@ -28,7 +28,7 @@ function App() {
   // that should ONLY be accessible if the user is logged in, and other routes
   // that should be accessible to everyone even if not signed in
 
-  const user = useAppSelector((state) => state.user.user);
+  const user = data?.user;
   const {authProviders, createdAt, updatedAt, __v, ...rest} = user || {};
 
   return (

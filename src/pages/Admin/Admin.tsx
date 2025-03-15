@@ -3,10 +3,12 @@ import ManageProducts from "./Products/ManageProducts";
 import ManageCategories from "./Categories/ManageCategories";
 import { useAppSelector } from "@/store/store";
 import { Link } from "react-router-dom";
+import { useMeQuery } from "@/store/api/apiSlice";
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState('products')
-  const user = useAppSelector((state) => state.user.user);
+  const { data } = useMeQuery();
+  const user = data?.user;
 
   if(!user){
     return (

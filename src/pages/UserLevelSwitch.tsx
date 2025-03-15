@@ -10,7 +10,8 @@ import { useForm } from 'react-hook-form';
 
 // TODO add toast
 export default function UserLevelSwitch() {
-  const user = useAppSelector((state) => state.user.user);
+  const {isLoading, data} = useMeQuery();
+  const user = data?.user;
   const { toast } = useToast()
 
 
@@ -45,7 +46,7 @@ export default function UserLevelSwitch() {
   // 2 - change when user changes
   // I belive this second reason would NOT be solved by swithcing our strategy to ocmment above
   // Not sure though, have to think about this, i havent thought muhc abt this
-  const {isLoading, data} = useMeQuery();
+  // const {isLoading, data} = useMeQuery();
 
 
 

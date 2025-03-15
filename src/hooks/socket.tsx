@@ -1,5 +1,4 @@
-import { setUser } from "@/store/slices/userSlice";
-import { useAppDispatch, useAppSelector } from "@/store/store";
+import { useMeQuery } from "@/store/api/apiSlice";
 import { createContext, useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
@@ -7,8 +6,7 @@ const SocketContext = createContext(null);
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
-  const user = useAppSelector((state) => state.user.user);
-  const dispatch = useAppDispatch();
+  const { refetch } = useMeQuery()
 
   /// TODO i think switch to this https://redux-toolkit.js.org/rtk-query/usage/streaming-updates
   // basically move the websocket connection to user.user onCacheenrtyAdded?????
@@ -41,7 +39,8 @@ export const SocketProvider = ({ children }) => {
 
     s.on("user", (user) => {
       console.log('WEBSSOCKET USER UDPATE: ', user)
-      dispatch(setUser(user))
+      // dispatch(setUser(user))
+      refetch();
     })
     
     return () => {
