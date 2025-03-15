@@ -204,6 +204,12 @@ export const apiSlice = createApi({
        [{ type: 'Categories', id: 'LIST' }],
     }),
 
+    getCategoriesAdmin: builder.query({
+      query: () => `/categories/admin`,
+      providesTags: (result) =>
+       [{ type: 'Categories', id: 'LIST' }, 'Users'],
+    }),
+
     addCategory: builder.mutation({
       query: ({body}) => ({
         url: `/categories`,
@@ -307,6 +313,7 @@ export const {
   useDeleteCartProductMutation,
   //categories
   useGetCategoriesQuery,
+  useGetCategoriesAdminQuery,
   useAddCategoryMutation,
   useDeleteCategoryMutation,
   useEditCategoryMutation,

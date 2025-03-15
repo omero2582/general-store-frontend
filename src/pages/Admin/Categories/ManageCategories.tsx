@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { useGetCategoriesQuery, useDeleteCategoryMutation } from "@/store/api/apiSlice"
+import { useGetCategoriesQuery, useDeleteCategoryMutation, useGetCategoriesAdminQuery } from "@/store/api/apiSlice"
 import { Spinner } from "@/components/Spinner";
 import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow} from "@/components/ui/table"
 import CategoryModalNew from "./CategoryModal/CategoryModalNew";
@@ -9,7 +9,7 @@ export default function ManageCategories() {
   
   
   
-  const {data, isLoading, error} = useGetCategoriesQuery(undefined);
+  const {data, isLoading, error} = useGetCategoriesAdminQuery(undefined);
   const [deleteCategory] = useDeleteCategoryMutation();
 
   
