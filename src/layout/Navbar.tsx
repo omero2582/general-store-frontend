@@ -18,6 +18,8 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar"
 
+import GoogleSignIn from '@/components/GoogleSignIn/GoogleSignIn'
+
 export function Navbar() {
   const {isLoading, data} = useMeQuery();
   const [logout, resLogout] = useLogoutGoogleMutation();
@@ -91,12 +93,9 @@ export function Navbar() {
           </>
           : isLoading?
           <div className='mx-2 self-center bg-stone-300 h-[45px] w-[45px] rounded-full'></div>
-          :<a 
-            href='/api/auth/google'
-            className='self-center py-[3px] px-4 rounded border-[2px] border-slate-400 font-[500] tracking-wide text-[18px] hover:bg-slate-800 grid items-center'
-          >
-            Sign In
-          </a>
+          :<div className='grid items-center'>
+            <GoogleSignIn onClick={() => window.location.href= '/api/auth/google'}/>
+          </div>
         }
       </div>
         
